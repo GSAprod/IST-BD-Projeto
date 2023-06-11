@@ -67,7 +67,7 @@ def account_index():
     ):
         return jsonify(accounts)
 
-    return render_template("products/index.html", accounts=accounts)
+    return render_template("account/index.html", accounts=accounts)
 
 
 @app.route("/accounts/<account_number>/update", methods=("GET", "POST"))
@@ -112,7 +112,7 @@ def account_update(account_number):
                 conn.commit()
             return redirect(url_for("account_index"))
 
-    return render_template("products/update.html", account=account)
+    return render_template("account/update.html", account=account)
 
 
 @app.route("/accounts/<account_number>/delete", methods=("POST",))

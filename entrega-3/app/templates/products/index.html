@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Products{% endblock %}</h1>
+  <button>+ Add product</button>
+{% endblock %}
+
+{% block content %}
+  {% for account in accounts %}
+    <article class="post">
+      <header>
+        <div class="post-left">
+          <h1>{{ account['account_number'] }}</h1>
+          <div class="about">in {{ account['branch_name'] }}</div>
+        </div>
+        <p class="body">€ {{ account['balance'] }}</p>
+      </header>
+      <div class="post-right">
+        <div>€ 58.00</div>
+        <a class="action" href="{{ url_for('account_update', account_number=account['account_number']) }}">Edit</a>
+      </div>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
