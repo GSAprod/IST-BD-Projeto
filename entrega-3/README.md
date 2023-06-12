@@ -55,6 +55,12 @@ CREATE DATABASE db
 GRANT ALL ON DATABASE db TO db;
 ```
 
+Saia da sessão com `\q` e crie uma nova sessão com o utilizador `db`:
+```
+$ psql -h postgres -U db
+```
+Pass: `db`
+
 Por agora, basta dar import ao SQL do bank para que a app corra corretamente:
 ```sql
 \i data/bank.sql
