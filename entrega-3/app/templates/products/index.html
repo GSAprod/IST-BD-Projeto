@@ -12,13 +12,14 @@
         <div class="post-left">
           <h1>{{ account['account_number'] }}</h1>
           <div class="about">in {{ account['branch_name'] }}</div>
+          <div class="about">ean: 212345678956</div>
+          <p class="body">€ {{ account['balance'] }}</p>
         </div>
-        <p class="body">€ {{ account['balance'] }}</p>
+        <div class="post-links">
+          <a class="action" href="#TODO">View</a>
+          <a class="action" href="{{ url_for('account_update', account_number=account['account_number']) }}">Edit</a>
+        </div>
       </header>
-      <div class="post-right">
-        <div>€ 58.00</div>
-        <a class="action" href="{{ url_for('account_update', account_number=account['account_number']) }}">Edit</a>
-      </div>
     </article>
     {% if not loop.last %}
       <hr>

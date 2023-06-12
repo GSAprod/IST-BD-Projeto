@@ -44,7 +44,7 @@ log = app.logger
 
 
 @app.route("/", methods=("GET",))
-@app.route("/accounts", methods=("GET",))
+@app.route("/products", methods=("GET",))
 def account_index():
     """Show all the accounts, most recent first."""
 
