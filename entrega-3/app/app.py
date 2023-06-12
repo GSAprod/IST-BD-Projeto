@@ -45,16 +45,16 @@ log = app.logger
 
 @app.route("/", methods=("GET",))
 @app.route("/products", methods=("GET",))
-def account_index():
+def product_index():
     """Show all the accounts, most recent first."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
-            accounts = cur.execute(
+            products = cur.execute(
                 """
-                SELECT account_number, branch_name, balance
-                FROM account
-                ORDER BY account_number DESC;
+                SELECT sku, name, price, ean
+                FROM product
+                ORDER BY sku ASC;
                 """,
                 {},
             ).fetchall()
@@ -65,9 +65,9 @@ def account_index():
         request.accept_mimetypes["application/json"]
         and not request.accept_mimetypes["text/html"]
     ):
-        return jsonify(accounts)
+        return jsonify(products)
 
-    return render_template("products/index.html", accounts=accounts)
+    return render_template("products/index.html", products=products)
 
 @app.route("/suppliers", methods=("GET",))
 def supplier_index():
@@ -154,19 +154,19 @@ def supplier_update(tin):
 
     return render_template("suppliers/update.html", supplier=supplier)
 
-@app.route("/accounts/<account_number>/update", methods=("GET", "POST"))
-def account_update(account_number):
+@app.route("/products/<product_sku>/update", methods=("GET", "POST"))
+def product_update(product_sku):
     """Update the account balance."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
-            account = cur.execute(
+            product = cur.execute(
                 """
-                SELECT account_number, branch_name, balance
-                FROM account
-                WHERE account_number = %(account_number)s;
+                SELECT name, sku, ean, price, description
+                FROM product
+                WHERE sku = %(product_sku)s;
                 """,
-                {"account_number": account_number},
+                {"product_sku": product_sku},
             ).fetchone()
             log.debug(f"Found {cur.rowcount} rows.")
 
@@ -189,18 +189,18 @@ def account_update(account_number):
                         """
                         UPDATE account
                         SET balance = %(balance)s
-                        WHERE account_number = %(account_number)s;
+                        WHERE account_number = %(product_sku)s;
                         """,
-                        {"account_number": account_number, "balance": balance},
+                        {"product_sku": product_sku, "balance": balance},
                     )
                 conn.commit()
             return redirect(url_for("account_index"))
 
-    return render_template("products/update.html", account=account)
+    return render_template("products/update.html", product=product)
 
 
-@app.route("/accounts/<account_number>/delete", methods=("POST",))
-def account_delete(account_number):
+@app.route("/products/<product_sku>/delete", methods=("POST",))
+def product_delete(product_sku):
     """Delete the account."""
 
     with pool.connection() as conn:
@@ -210,7 +210,7 @@ def account_delete(account_number):
                 DELETE FROM account
                 WHERE account_number = %(account_number)s;
                 """,
-                {"account_number": account_number},
+                {"account_number": product_sku},
             )
         conn.commit()
     return redirect(url_for("account_index"))
