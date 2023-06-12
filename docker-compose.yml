@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  istbdprojeto:
+    image: istbdprojeto
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 5002:5002

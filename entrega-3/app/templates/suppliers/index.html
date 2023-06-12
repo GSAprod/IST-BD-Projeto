@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Suppliers{% endblock %}</h1>
+  <button>+ Add supplier</button>
+{% endblock %}
+
+{% block content %}
+  {% for supplier in suppliers %}
+    <article class="post">
+      <header>
+        <div class="post-left">
+          <h1>{{ supplier['tin'] }}</h1>
+          <div class="about">name: {{ supplier['name'] }}</div>
+          <div class="about">in: {{ supplier['address'] }}</div>
+          <div class="about">sku: {{ supplier['sku'] }}</div>
+          <p class="body"> {{ supplier['date'] }}</p>
+        </div>
+        <div class="post-links">
+          <a class="action" href="#TODO">View</a>
+          <a class="action" href="{{ url_for('supplier_update', tin=supplier['tin']) }}">Edit</a>
+        </div>
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
