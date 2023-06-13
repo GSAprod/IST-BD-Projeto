@@ -214,15 +214,53 @@ def product_delete(product_sku):
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            
+            # Here, the trigger for every order being in contains 
+            # only runs after the transaction is made
             cur.execute(
                 """
-                DELETE FROM product
+                DELETE FROM contains
+                WHERE sku = %(product_sku)s;
+                """, {"product_sku": product_sku}) 
+
+            cur.execute(
+                """
+                DELETE FROM process
+                WHERE order_no IN (
+                    SELECT order_no FROM orders
+                    EXCEPT
+                    SELECT order_no FROM contains);
+                """)
+            
+            cur.execute(
+                """
+                DELETE FROM pay
+                WHERE order_no IN (
+                    SELECT order_no FROM orders
+                    EXCEPT
+                    SELECT order_no FROM contains);
+                """
+            )
+
+            # Take out the sku from the supplier whose product was deleted
+            cur.execute(
+                """
+                UPDATE supplier
+                SET sku = NULL
                 WHERE sku = %(product_sku)s;
                 """, # É preciso fazer mais deletes....
                 {"product_sku": product_sku},
             )
+
+            # Finally, after all restrictions have been lifted, delete the product
+            cur.execute(
+                """
+                DELETE FROM product
+                WHERE sku = %(product_sku)s;
+                """, {"product_sku": product_sku})
+            
         conn.commit()
-    return redirect(url_for("account_index"))
+    return redirect(url_for("product_index"))
 
 @app.route("/suppliers", methods=("GET",))
 def supplier_index():
