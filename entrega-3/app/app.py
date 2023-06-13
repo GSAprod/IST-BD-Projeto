@@ -295,6 +295,13 @@ def supplier_delete(tin):
         with conn.cursor(row_factory=namedtuple_row) as cur:
             cur.execute(
                 """
+                DELETE FROM delivery
+                WHERE tin = %(tin)s;
+                """, {"tin": tin},
+            )
+
+            cur.execute(
+                """
                 DELETE FROM supplier
                 WHERE tin = %(tin)s;
                 """,
