@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Customer &#35;{{ customer['cust_no'] }} | Edit{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">    
+    <label for="cust_no">Customer number</label>
+    <input name="cust_no" id="cust_no" type="text" value="{{ request.form['cust_no'] or customer['cust_no'] }}" disabled>
+    <label for="name">Name</label>
+    <input name="name" id="name" type="text" value="{{ request.form['name'] or customer['name'] }}">
+    <div class="post-2col">
+      <div>
+        <label for="email">Email</label>
+        <input name="email" id="email" type="text" value="{{ request.form['email'] or customer['email'] }}">
+      </div>
+      <div>
+        <label for="phone">Phone number</label>
+        <input name="phone" id="phone" type="text" value="{{ request.form['phone'] or customer['phone'] }}">
+      </div>
+    </div>
+    <label for="address"><Address></Address></label>
+    <input name="address" id="address" type="text" value="{{ request.form['address'] or customer['address'] }}">
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  <form action="{{ url_for('customer_delete', cust_no=customer['cust_no']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+{% endblock %}

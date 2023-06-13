@@ -201,7 +201,7 @@ def supplier_update(tin):
         with conn.cursor(row_factory=namedtuple_row) as cur:
             supplier = cur.execute(
                 """
-                SELECT tin, name, adress, sku, date
+                SELECT tin, name, address, sku, date
                 FROM supplier
                 WHERE tin = %(tin)s;
                 """,
@@ -236,6 +236,98 @@ def supplier_update(tin):
             return redirect(url_for("supplier_index"))
 
     return render_template("suppliers/update.html", supplier=supplier)
+
+@app.route("/customers", methods=("GET",))
+def customer_index():
+    """Show all the accounts, most recent first."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            customers = cur.execute(
+                """
+                SELECT cust_no, name, email, phone, address
+                FROM customer
+                ORDER BY cust_no DESC;
+                """,
+                {},
+            ).fetchall()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    # API-like response is returned to clients that request JSON explicitly (e.g., fetch)
+    if (
+        request.accept_mimetypes["application/json"]
+        and not request.accept_mimetypes["text/html"]
+    ):
+        return jsonify(customers)
+
+    return render_template("customers/index.html", customers=customers)
+
+@app.route("/customers/<cust_no>/delete", methods=("POST",))
+def customer_delete(cust_no):
+    """Delete the customer."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                DELETE FROM customer
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            )
+        conn.commit()
+    return redirect(url_for("customer_index"))
+
+@app.route("/customers/<cust_no>/update", methods=("GET", "POST"))
+def customer_update(cust_no):
+    """Update the account balance."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            customer = cur.execute(
+                """
+                SELECT cust_no, name, email, phone, address
+                FROM customer
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    if request.method == "POST":
+        address = request.form["address"]
+        phone = request.form["phone"]
+
+        error = None
+
+        if not address:
+            error = "Address is required."
+            if not address.istext():
+                error = "Address is required to be text."
+        elif not phone:
+            error = "Phone is required."
+            if not address.istext():
+                error = "Phone is required to be text."
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    cur.execute(
+                        """
+                        UPDATE customer
+                        SET address = %(address)s
+                        SET phone = %(phone)s
+                        WHERE cust_no = %(cust_no)s;
+                        """,
+                        {"cust_no": cust_no, "address": address},
+                        {"cust_no": cust_no, "phone": phone},
+                    )
+                conn.commit()
+            return redirect(url_for("customer_index"))
+
+    return render_template("customers/update.html", customer=customer)
 
 @app.route("/ping", methods=("GET",))
 def ping():
