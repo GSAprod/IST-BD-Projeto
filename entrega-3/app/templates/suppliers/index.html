@@ -10,11 +10,11 @@
     <article class="post">
       <header>
         <div class="post-left">
-          <h1>{{ supplier['tin'] }}</h1>
-          <div class="about">name: {{ supplier['name'] }}</div>
+          <h1>{{ supplier['name'] }}</h1>
           <div class="about">in: {{ supplier['address'] }}</div>
           <div class="about">sku: {{ supplier['sku'] }}</div>
-          <p class="body"> {{ supplier['date'] }}</p>
+          <div class="about">{{ supplier['date'] }}</div>
+          <p class="body"> {{ supplier['tin'] }}</p>
         </div>
         <div class="post-links">
           <a class="action" href="#TODO">View</a>
