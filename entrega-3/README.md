@@ -61,12 +61,6 @@ $ psql -h postgres -U db
 ```
 Pass: `db`
 
-Por agora, basta dar import ao SQL do bank para que a app corra corretamente:
-```sql
-\i data/bank.sql
-```
-No entanto, a ideia é que a webapp passe a usar a base de dados para esta terceira entrega.
-
 Para usar a base de dados da 3a entrega, abra o [E3-report.ipynb](./work/E3-report.ipynb) e corra as células de código necessárias para criar as tabelas e inserir os dados de entrada nas mesmas.
 
 ## Correr após a primeira vez
