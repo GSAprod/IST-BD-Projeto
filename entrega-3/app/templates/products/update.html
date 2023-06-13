@@ -42,8 +42,10 @@
     <textarea name="description" id="product_description" type="text" value="">{{ request.form['description'] or product['description'] }}</textarea>
     <input type="submit" value="Save">
   </form>
+  {% if product['sku'] != "" %}
   <hr>
   <form action="{{ url_for('product_delete', product_sku=product['sku']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+  {% endif %}
 {% endblock %}
