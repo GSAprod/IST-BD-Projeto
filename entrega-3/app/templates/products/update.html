@@ -8,18 +8,24 @@
   <form method="post">
     <div class="post-2col">
       <div>
-        <label for="product_sku">Product SKU</label>
-        <input name="product_sku" id="product_sku" type="text" value="{{ request.form['sku'] or product['sku'] }}" disabled>
+        <label for="sku">Product SKU*</label>
+        <input name="sku" id="product_sku" type="text" value="{{ request.form['sku'] or product['sku'] }}" disabled>
       </div>
       <div>
-        <label for="product_ean">Product EAN</label>
-        <input name="product_ean" id="product_ean" type="text" value="{{ request.form['ean'] or product['ean'] }}">
+        <label for="ean">Product EAN</label>
+        {% if product['ean'] != None %}
+        <input name="ean" id="product_ean" type="text" value="{{ request.form['ean'] or product['ean'] }}">
+        {% else %}
+        <input name="ean" id="product_ean" type="text" value="">
+        {% endif %}
       </div>
     </div>
-    <label for="product_name">Name</label>
-    <input name="product_name" id="product_name" type="text" value="{{ request.form['name'] or product['name'] }}">
-    <label for="price">Price</label>
+    <label for="name">Name*</label>
+    <input name="name" id="product_name" type="text" value="{{ request.form['name'] or product['name'] }}">
+    <label for="price">Price*</label>
     <input name="price" id="price" type="number" min="0" step="0.0001" placeholder="0.0000" value="{{ request.form['price'] or product['price'] }}" required>
+    <label for="description">Description</label>
+    <textarea name="description" id="product_description" type="text" value="">{{ request.form['description'] or product['description'] }}</textarea>
     <input type="submit" value="Save">
   </form>
   <hr>

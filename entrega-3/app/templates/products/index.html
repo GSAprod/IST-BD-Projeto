@@ -13,7 +13,7 @@
           <h1>{{ product['name'] }}</h1>
           <div class="about">sku: {{ product['sku'] }}</div>
           {% if product['ean'] != None %}
-            <div class="about">ean: {{212345678956}}</div>
+            <div class="about">ean: {{ product['ean'] }}</div>
           {% else %}
             <br>
           {% endif %}

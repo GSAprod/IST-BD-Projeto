@@ -86,30 +86,52 @@ def product_update(product_sku):
             log.debug(f"Found {cur.rowcount} rows.")
 
     if request.method == "POST":
-        balance = request.form["balance"]
+        name = request.form["name"]
+        price = request.form["price"]
+        description = request.form["description"]
+        ean = request.form["ean"]
 
         error = None
 
-        if not balance:
-            error = "Balance is required."
-            if not balance.isnumeric():
-                error = "Balance is required to be numeric."
+        if not name:
+            error = "Name is required."
+
+        elif not price:
+            error = "Price is required"
+            if not price.isnumeric():
+                error = "Price is required to be numeric."
+        
+        elif ean:
+            if not ean.isnumeric():
+                error = "EAN is required to be numeric."
+            elif not 1000000000000 < int(ean) < 9999999999999:
+                error = "EAN is required to have 13 digits."
 
         if error is not None:
             flash(error)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
-                    cur.execute(
-                        """
-                        UPDATE account
-                        SET balance = %(balance)s
-                        WHERE account_number = %(product_sku)s;
-                        """,
-                        {"product_sku": product_sku, "balance": balance},
-                    )
+                    if ean:
+                        cur.execute(
+                            """
+                            UPDATE product
+                            SET ean = %(ean)s, name = %(name)s, price = %(price)s, description = %(description)s
+                            WHERE sku = %(product_sku)s;
+                            """,
+                            {"product_sku": product_sku, "ean": ean, "name": name, "price": price, "description": description},
+                        )
+                    else:
+                        cur.execute(
+                            """
+                            UPDATE product
+                            SET ean = NULL, name = %(name)s, price = %(price)s, description = %(description)s
+                            WHERE sku = %(product_sku)s;
+                            """,
+                            {"product_sku": product_sku, "name": name, "price": price, "description": description},
+                        )
                 conn.commit()
-            return redirect(url_for("account_index"))
+            return redirect(url_for("product_index"))
 
     return render_template("products/update.html", product=product)
 

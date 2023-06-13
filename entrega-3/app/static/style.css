@@ -145,6 +145,8 @@ header button {
 .content textarea {
   min-height: 12em;
   resize: vertical;
+  font-size: 1rem;
+  font-family: inherit;
 }
 
 input.danger {
