@@ -244,6 +244,58 @@ def supplier_index():
 
     return render_template("suppliers/index.html", suppliers=suppliers)
 
+@app.route("/suppliers/create", methods=("GET", "POST"))
+def supplier_create():
+    """Add a new supplier"""
+    
+
+    if request.method == "GET":
+        supplier = {
+            'tin': "",
+            'name': "",
+            'address': "",
+            'sku': "",
+            'date': ""
+        }
+        return render_template("suppliers/update.html", supplier=supplier)
+    
+    elif request.method == "POST":
+        tin = request.form["tin"]
+        sku = request.form["sku"]
+        address = request.form["address"]
+        name = request.form["name"]
+        date = request.form["date"]
+
+        error = None
+
+        if not address:
+            error = "Address is required."
+        else:
+            if len(address)>255:
+                error = "Address cannot have more than 255 characters."
+        if not name:
+            error = "Name is required."
+        else:
+            if len(name)>200:
+                error = "Name cannot have more than 200 characters."
+        if not date:
+            error = "Date is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    cur.execute(
+                        """
+                        INSERT INTO supplier
+                        VALUES (%(tin)s, %(name)s, %(address)s, %(sku)s, %(date)s);
+                        """,
+                        {"tin": tin, "name": name, "address": address, "sku": sku, "date": date},
+                    )
+                conn.commit()
+            return redirect(url_for("supplier_index"))
+
 @app.route("/suppliers/<tin>/delete", methods=("POST",))
 def supplier_delete(tin):
     """Delete the supplier."""
