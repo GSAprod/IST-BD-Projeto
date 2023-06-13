@@ -278,13 +278,23 @@ def supplier_update(tin):
 
     if request.method == "POST":
         address = request.form["address"]
+        name = request.form["name"]
+        date = request.form["date"]
 
         error = None
 
         if not address:
             error = "Address is required."
-            if not address.istext():
-                error = "Address is required to be text."
+        else:
+            if len(address)>255:
+                error = "Address cannot have more than 255 characters."
+        if not name:
+            error = "Name is required."
+        else:
+            if len(name)>200:
+                error = "Name cannot have more than 200 characters."
+        if not date:
+            error = "Date is required."
 
         if error is not None:
             flash(error)
@@ -294,10 +304,10 @@ def supplier_update(tin):
                     cur.execute(
                         """
                         UPDATE supplier
-                        SET address = %(address)s
+                        SET address = %(address)s, name = %(name)s, date = %(date)s
                         WHERE tin = %(tin)s;
                         """,
-                        {"tin": tin, "address": address},
+                        {"tin": tin, "address": address, "name": name, "date": date},
                     )
                 conn.commit()
             return redirect(url_for("supplier_index"))
@@ -364,17 +374,31 @@ def customer_update(cust_no):
     if request.method == "POST":
         address = request.form["address"]
         phone = request.form["phone"]
+        name = request.form["name"]
+        email = request.form["email"]
 
         error = None
 
+        if not name:
+            error = "Name is required."
+        else:
+            if len(name)>80:
+                error = "Name cannot have more than 80 characters"
+        if not phone:
+            error = "Phone is required."
+        else:
+            if len(phone)>15:
+                error = "Phone cannot have more than 15 characters"
+        if not email:
+            error = "Email is required."
+        else:
+            if len(email)>254:
+                error = "Email cannot have more than 254 characters"
         if not address:
             error = "Address is required."
-            if not address.istext():
-                error = "Address is required to be text."
-        elif not phone:
-            error = "Phone is required."
-            if not address.istext():
-                error = "Phone is required to be text."
+        else:
+            if len(address)>255:
+                error = "Address cannot have more than 255 characters"
 
         if error is not None:
             flash(error)
@@ -384,12 +408,10 @@ def customer_update(cust_no):
                     cur.execute(
                         """
                         UPDATE customer
-                        SET address = %(address)s
-                        SET phone = %(phone)s
+                        SET address = %(address)s, phone = %(phone)s, email = %(email)s, name = %(name)s 
                         WHERE cust_no = %(cust_no)s;
                         """,
-                        {"cust_no": cust_no, "address": address},
-                        {"cust_no": cust_no, "phone": phone},
+                        {"cust_no": cust_no, "address": address, "phone": phone, "email": email, "name": name},
                     )
                 conn.commit()
             return redirect(url_for("customer_index"))
