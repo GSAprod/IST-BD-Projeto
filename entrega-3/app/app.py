@@ -77,7 +77,7 @@ def supplier_index():
         with conn.cursor(row_factory=namedtuple_row) as cur:
             suppliers = cur.execute(
                 """
-                SELECT tin, name, adress, sku, date
+                SELECT tin, name, address, sku, date
                 FROM supplier
                 ORDER BY tin DESC;
                 """,
