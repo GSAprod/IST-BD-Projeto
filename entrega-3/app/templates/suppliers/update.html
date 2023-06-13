@@ -9,25 +9,46 @@
     <div class="post-2col">
       <div>
         <label for="tin">Supplier TIN</label>
+        {% if supplier['tin'] != "" %}
         <input name="tin" id="tin" type="text" value="{{ request.form['tin'] or supplier['tin'] }}" disabled>
+        {% else %}
+        <input name="tin" id="tin" type="text">
+        {% endif %}
       </div>
       <div>
         <label for="sku">Supplier Sku</label>
+        {% if supplier['sku'] != "" %}
         <input name="sku" id="sku" type="text" value="{{ request.form['sku'] or supplier['sku'] }}" disabled>
+        {% else %}
+        <input name="sku" id="sku" type="text">
+        {% endif %}
       </div>
     </div>
     
     <label for="name">Name</label>
+    {% if supplier['name'] != "" %}
     <input name="name" id="name" type="text" value="{{ request.form['name'] or supplier['name']}}" required>
-    
+    {% else %}
+    <input name="name" id="name" type="text">
+    {% endif %}
     <label for="address">Address</label>
+    {% if supplier['address'] != "" %}
     <input name="address" id="address" type="text" value="{{ request.form['address'] or supplier['address'] }}" required>
+    {% else %}
+    <input name="address" id="address" type="text">
+    {% endif %}
     <label for="date">Date</label>
+    {% if supplier['date'] != "" %}
     <input name="date" id="date" type="date" value="{{request.form['date'] or supplier['date']}}" required>
+    {% else %}
+    <input name="date" id="date" type="text">
+    {% endif %}
     <input type="submit" value="Save">
   </form>
+  {% if supplier['tin'] != "" %}
   <hr>
   <form action="{{ url_for('supplier_delete', tin=supplier['tin']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+  {% endif %}
 {% endblock %}

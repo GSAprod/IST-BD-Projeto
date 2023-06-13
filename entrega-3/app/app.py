@@ -304,9 +304,9 @@ def supplier_create():
     
     elif request.method == "POST":
         tin = request.form["tin"]
-        sku = request.form["sku"]
-        address = request.form["address"]
         name = request.form["name"]
+        address = request.form["address"]
+        sku = request.form["sku"]
         date = request.form["date"]
 
         error = None
@@ -329,13 +329,18 @@ def supplier_create():
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
-                    cur.execute(
-                        """
-                        INSERT INTO supplier
-                        VALUES (%(tin)s, %(name)s, %(address)s, %(sku)s, %(date)s);
-                        """,
-                        {"tin": tin, "name": name, "address": address, "sku": sku, "date": date},
-                    )
+                    try:
+                        cur.execute(
+                            """
+                            INSERT INTO supplier
+                            VALUES (%(tin)s, %(name)s, %(address)s, %(sku)s, %(date)s);
+                            """,
+                            {"tin": tin, "name": name, "address": address, "sku": sku, "date": date},
+                        )
+                    except psycopg.errors.IntegrityError:
+                        conn.rollback()
+                        error = "TIN already exists."
+                        flash(error)
                 conn.commit()
             return redirect(url_for("supplier_index"))
 
