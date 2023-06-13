@@ -2,7 +2,7 @@
 
 {% block header %}
   <h1>{% block title %}Customers{% endblock %}</h1>
-  <button>+ Add customer</button>
+  <a href="{{ url_for('customer_create') }}" class="header-button">+ Add customer</a>
 {% endblock %}
 
 {% block content %}

@@ -354,7 +354,8 @@ def supplier_delete(tin):
                 """
                 DELETE FROM delivery
                 WHERE tin = %(tin)s;
-                """, {"tin": tin},
+                """, 
+                {"tin": tin},
             )
 
             cur.execute(
@@ -446,12 +447,92 @@ def customer_index():
 
     return render_template("customers/index.html", customers=customers)
 
+@app.route("/customers/create", methods=("GET", "POST"))
+def customer_create():
+    """Add a new customer"""
+    
+
+    if request.method == "GET":
+        customer = {
+            'cust_no': "",
+            'name': "",
+            'email': "",
+            'phone': "",
+            'address': ""
+        }
+        return render_template("customers/update.html", customer=customer)
+    
+    elif request.method == "POST":
+        cust_no = request.form["cust_no"]
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        address = request.form["address"]
+
+        error = None
+
+        if not address:
+            error = "Address is required."
+        else:
+            if len(address)>255:
+                error = "Address cannot have more than 255 characters."
+        if not name:
+            error = "Name is required."
+        else:
+            if len(name)>80:
+                error = "Name cannot have more than 80 characters."
+        if not phone:
+            error = "Phone is required."
+        else:
+            if len(phone)>15:
+                error = "Phone cannot have more than 15 characters."
+        if not email:
+            error = "Email is required."
+        else:
+            if len(email)>254:
+                error = "Email cannot have more than 254 characters."
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    try:
+                        cur.execute(
+                            """
+                            INSERT INTO customer
+                            VALUES (%(cust_no)s, %(name)s, %(email)s, %(phone)s, %(address)s);
+                            """,
+                            {"cust_no": cust_no, "name": name, "email": email, "phone": phone, "address": address},
+                        )
+                    except psycopg.errors.IntegrityError:
+                        conn.rollback()
+                        error = "Customer already exists."
+                        flash(error)
+                conn.commit()
+            return redirect(url_for("customer_index"))
+
 @app.route("/customers/<cust_no>/delete", methods=("POST",))
 def customer_delete(cust_no):
     """Delete the customer."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                DELETE FROM process
+                WHERE order_no IN (
+                    SELECT order_no FROM orders
+                    EXCEPT
+                    SELECT order_no FROM contains);
+                """)
+            cur.execute(
+                """
+                DELETE FROM orders
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            )
             cur.execute(
                 """
                 DELETE FROM customer

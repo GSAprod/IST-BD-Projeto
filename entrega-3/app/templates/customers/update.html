@@ -1,27 +1,52 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Customer &#35;{{ customer['cust_no'] }} | Edit{% endblock %}</h1>
-{% endblock %}
+<h1>{% block title %}
+  {% if customer['cust_no'] != "" %}
+    Customer &#35;{{ customer['cust_no'] }} | Edit
+  {% else %}
+    Create New Customer
+  {% endif %}
+  {% endblock %}</h1>{% endblock %}
 
 {% block content %}
   <form method="post">    
     <label for="cust_no">Customer number</label>
+    {% if customer['cust_no'] != "" %}
     <input name="cust_no" id="cust_no" type="text" value="{{ request.form['cust_no'] or customer['cust_no'] }}" disabled>
+    {% else %}
+    <input name="cust_no" id="cust_no" type="text">
+    {% endif %}
     <label for="name">Name</label>
+    {% if customer['name']!="" %}
     <input name="name" id="name" type="text" value="{{ request.form['name'] or customer['name'] }}">
+    {% else %}
+    <input name="name" id="name" type="text">
+    {% endif %}
     <div class="post-2col">
       <div>
         <label for="email">Email</label>
+        {% if customer['email']!="" %}
         <input name="email" id="email" type="text" value="{{ request.form['email'] or customer['email'] }}">
+        {% else %}
+        <input name="email" id="email" type="text">
+        {% endif %}
       </div>
       <div>
         <label for="phone">Phone number</label>
+        {% if customer['phone']!="" %}
         <input name="phone" id="phone" type="text" value="{{ request.form['phone'] or customer['phone'] }}">
+        {% else %}
+        <input name="phone" id="phone" type="text">
+        {% endif %}
       </div>
     </div>
-    <label for="address"><Address></Address></label>
+    <label for="address">Address</label>
+    {% if customer['address']!="" %}
     <input name="address" id="address" type="text" value="{{ request.form['address'] or customer['address'] }}">
+    {% else %}
+    <input name="address" id="address" type="text">
+    {% endif %}
     <input type="submit" value="Save">
   </form>
   <hr>
