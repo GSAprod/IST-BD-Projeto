@@ -59,7 +59,7 @@ header {
   justify-content: space-between;
 }
 
-header button {
+header .header-button {
   margin: 1em 0;
 }
 

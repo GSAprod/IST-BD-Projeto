@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Product &#35;{{ product['sku'] }} | Edit{% endblock %}</h1>
+  <h1>{% block title %}
+    {% if product['sku'] != "" %}
+      Product &#35;{{ product['sku'] }} | Edit
+    {% else %}
+      Create New Product
+    {% endif %}
+    {% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -9,21 +15,29 @@
     <div class="post-2col">
       <div>
         <label for="sku">Product SKU*</label>
+        {% if product['sku'] != "" %}
         <input name="sku" id="product_sku" type="text" value="{{ request.form['sku'] or product['sku'] }}" disabled>
+        {% else %}
+        <input name="sku" id="product_sku" type="text">
+        {% endif %}
       </div>
       <div>
         <label for="ean">Product EAN</label>
         {% if product['ean'] != None %}
         <input name="ean" id="product_ean" type="text" value="{{ request.form['ean'] or product['ean'] }}">
         {% else %}
-        <input name="ean" id="product_ean" type="text" value="">
+        <input name="ean" id="product_ean" type="text" >
         {% endif %}
       </div>
     </div>
     <label for="name">Name*</label>
     <input name="name" id="product_name" type="text" value="{{ request.form['name'] or product['name'] }}">
     <label for="price">Price*</label>
+    {% if product['price'] != None %}
     <input name="price" id="price" type="number" min="0" step="0.0001" placeholder="0.0000" value="{{ request.form['price'] or product['price'] }}" required>
+    {% else %}
+    <input name="price" id="price" type="number" min="0" step="0.0001" placeholder="0.0000" required>
+    {% endif %}
     <label for="description">Description</label>
     <textarea name="description" id="product_description" type="text" value="">{{ request.form['description'] or product['description'] }}</textarea>
     <input type="submit" value="Save">

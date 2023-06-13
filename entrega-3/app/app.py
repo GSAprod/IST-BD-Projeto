@@ -69,9 +69,75 @@ def product_index():
 
     return render_template("products/index.html", products=products)
 
+@app.route("/products/create", methods=("GET", "POST"))
+def product_create():
+    """Add a new product"""
+    
+
+    if request.method == "GET":
+        product = {
+            'name': "",
+            'sku': "",
+            'ean': None,
+            'price': None,
+            'description': ""
+        }
+        return render_template("products/update.html", product=product)
+    
+    elif request.method == "POST":
+        sku = request.form["sku"]
+        name = request.form["name"]
+        price = request.form["price"]
+        description = request.form["description"]
+        ean = request.form["ean"]
+
+        error = None
+
+        if not sku:
+            error = "Sku is required."
+
+        elif not name:
+            error = "Name is required."
+
+        elif not price:
+            error = "Price is required"
+            if not price.isnumeric():
+                error = "Price is required to be numeric."
+        
+        elif ean:
+            if not ean.isnumeric():
+                error = "EAN is required to be numeric."
+            elif not 1000000000000 < int(ean) < 9999999999999:
+                error = "EAN is required to have 13 digits."
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    if ean:
+                        cur.execute(
+                            """
+                            INSERT INTO product
+                            VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, %(ean)s);
+                            """,
+                            {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
+                        )
+                    else:
+                        cur.execute(
+                            """
+                            INSERT INTO product
+                            VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, NULL);
+                            """,
+                            {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
+                        )
+                conn.commit()
+            return redirect(url_for("product_index"))
+    
+
 @app.route("/products/<product_sku>/update", methods=("GET", "POST"))
 def product_update(product_sku):
-    """Update the account balance."""
+    """Update the product details."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -83,6 +149,7 @@ def product_update(product_sku):
                 """,
                 {"product_sku": product_sku},
             ).fetchone()
+
             log.debug(f"Found {cur.rowcount} rows.")
 
     if request.method == "POST":
@@ -138,16 +205,16 @@ def product_update(product_sku):
 
 @app.route("/products/<product_sku>/delete", methods=("POST",))
 def product_delete(product_sku):
-    """Delete the account."""
+    """Delete the product."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
             cur.execute(
                 """
-                DELETE FROM account
-                WHERE account_number = %(account_number)s;
-                """,
-                {"account_number": product_sku},
+                DELETE FROM product
+                WHERE sku = %(product_sku)s;
+                """, # É preciso fazer mais deletes....
+                {"product_sku": product_sku},
             )
         conn.commit()
     return redirect(url_for("account_index"))
