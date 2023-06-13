@@ -115,22 +115,27 @@ def product_create():
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
-                    if ean:
-                        cur.execute(
-                            """
-                            INSERT INTO product
-                            VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, %(ean)s);
-                            """,
-                            {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
-                        )
-                    else:
-                        cur.execute(
-                            """
-                            INSERT INTO product
-                            VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, NULL);
-                            """,
-                            {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
-                        )
+                    try:
+                        if ean:
+                            cur.execute(
+                                """
+                                INSERT INTO product
+                                VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, %(ean)s);
+                                """,
+                                {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
+                            )
+                        else:
+                            cur.execute(
+                                """
+                                INSERT INTO product
+                                VALUES (%(sku)s, %(name)s, %(description)s, %(price)s, NULL);
+                                """,
+                                {"sku": sku, "ean": ean, "name": name, "price": price, "description": description},
+                            )
+                    except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
+                        conn.rollback()
+                        error = "SKU already exists."
+                        flash(error)
                 conn.commit()
             return redirect(url_for("product_index"))
     
