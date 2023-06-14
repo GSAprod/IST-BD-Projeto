@@ -158,12 +158,12 @@ input[type=submit] {
   min-width: 10em;
 }
 
-.customer-details {
+.details {
   display: flex;
   justify-content: space-between;
 }
 
-.customer-details .customer-view-edit {
+.details .customer-view-edit {
   display: block;
   padding: 1em;
 }
