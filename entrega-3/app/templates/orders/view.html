@@ -43,7 +43,14 @@
     {% for item in items %}
     <tr>
       {% if not order['paid'] %}
-      <td class="delete-col"><a href="#TODO">X</a></td>
+      <td class="delete-col">
+        <form 
+          action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku']) }}" 
+          method="post"
+          class="order-delete-item-form"
+          >
+          <button type="submit" class="order-delete-item">X</button>
+        </form>
       {% endif %}
       <td>{{ item['sku'] }}</td>
       <td>{{ item['name']}}</td>

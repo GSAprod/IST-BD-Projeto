@@ -116,7 +116,7 @@ header .header-button {
   margin-bottom: 0;
 }
 
-.content form {
+.content form:not(.order-delete-item-form) {
   margin: 1em 0;
   display: flex;
   flex-direction: column;
@@ -229,4 +229,23 @@ table .price-col {
   display: flex;
   justify-content: space-between;
   margin: 0 0.5em;
+}
+
+.order-delete-item-form {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+.order-delete-item {
+  border: none;
+  outline: none;
+  background: none;
+  cursor: pointer;
+  color: #377ba8;
+  margin: 0;
+  padding: 0;
+  text-decoration: underline;
+  font-family: inherit;
+  font-size: inherit;
 }

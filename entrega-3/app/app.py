@@ -685,6 +685,51 @@ def order_view(order_no):
 
     return render_template("orders/view.html", order=order, items=items, total=total)
 
+@app.route("/orders/<order_no>/delete-item/<product_sku>/", methods=("POST", ))
+def order_delete_item(order_no, product_sku):
+    """Remove a product from an order"""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                DELETE FROM contains
+                WHERE order_no = %(order_no)s AND sku = %(product_sku)s;
+                """, {"order_no": order_no, "product_sku": product_sku}
+            )
+
+            order_has_products = cur.execute(
+                """
+                SELECT COUNT(1) FROM contains
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no}
+            ).fetchone()
+            if(order_has_products[0] == 0):
+                cur.execute(
+                    """
+                    DELETE FROM process 
+                    WHERE order_no = %(order_no)s;
+                    """, {"order_no": order_no}
+                )
+                cur.execute(
+                    """
+                    DELETE FROM pay
+                    WHERE order_no = %(order_no)s;
+                    """, {"order_no": order_no}
+                )
+                cur.execute(
+                    """
+                    DELETE FROM orders
+                    WHERE order_no = %(order_no)s;
+                    """, {"order_no": order_no}
+                )
+        conn.commit()
+        if order_has_products[0] == 0:
+            return redirect(url_for("customer_index"))
+
+    return redirect(url_for("order_view", order_no=order_no))
+    
+
 
 @app.route("/ping", methods=("GET",))
 def ping():
