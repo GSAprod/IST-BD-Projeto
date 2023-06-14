@@ -24,12 +24,16 @@
     
   <div class="order-heading">
     <h1>Items</h1>
+    {% if not order['paid'] %}
     <a href="#TODO" class="header-button call-to-action">+ Add item</a>
+    {% endif %}
   </div>
 
   <table>
     <tr>
+      {% if not order['paid'] %}
       <th class="delete-col"></th>
+      {% endif %}
       <th>SKU</th>
       <th>Product name</th>
       <th>Price per unit</th>
@@ -38,7 +42,9 @@
     </tr>
     {% for item in items %}
     <tr>
+      {% if not order['paid'] %}
       <td class="delete-col"><a href="#TODO">X</a></td>
+      {% endif %}
       <td>{{ item['sku'] }}</td>
       <td>{{ item['name']}}</td>
       <td>€ {{ item['price'] }}</td>
@@ -50,9 +56,11 @@
 
   <div class="totals-2col">
     <p>{{ items | length }} items</p>
-    <p>TOTAL <b>€ placeholder</b></p>
+    <p>TOTAL <b>€ {{ total }}</b></p>
   </div>
 
-  <a href="#TODO">Proceed to checkout</a>
+  {% if not order['paid'] %}
+  <a href="#TODO">Proceed to checkout</a> 
+  {% endif %}
 
 {% endblock %}

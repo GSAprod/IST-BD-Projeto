@@ -530,17 +530,17 @@ def customer_delete(cust_no):
                 DELETE FROM process
                 WHERE order_no IN (
                     SELECT order_no FROM orders
-                    EXCEPT
-                    SELECT order_no FROM pay);
-                """)
+                    WHERE cust_no = %(cust_no)s);
+                """,
+                {"cust_no": cust_no})
             cur.execute(
                 """
                 DELETE FROM contains
                 WHERE order_no IN (
                     SELECT order_no FROM orders
-                    EXCEPT
-                    SELECT order_no FROM process);
-                """)
+                    WHERE cust_no = %(cust_no)s);
+                """,
+                {"cust_no": cust_no})
             cur.execute(
                 """
                 DELETE FROM orders
@@ -661,7 +661,7 @@ def order_view(order_no):
         with conn.cursor(row_factory=namedtuple_row) as cur:
             order = cur.execute(
                 """
-                SELECT order_no, cust_no, name AS cust_name, date
+                SELECT order_no, cust_no, name AS cust_name, date, order_no IN (SELECT order_no FROM pay) AS paid
                 FROM orders JOIN customer USING (cust_no)
                 WHERE order_no = %(order_no)s;
                 """, {"order_no": order_no},
@@ -677,8 +677,13 @@ def order_view(order_no):
                 """, {"order_no": order_no},
             ).fetchall()
             log.debug(f"Found {cur2.rowcount} rows.")
+        
+        log.debug(f"Items: {items[0][4]}")
+        total = 0
+        for i in range(len(items)):
+            total += items[i][4]
 
-    return render_template("orders/view.html", order=order, items=items)
+    return render_template("orders/view.html", order=order, items=items, total=total)
 
 
 @app.route("/ping", methods=("GET",))

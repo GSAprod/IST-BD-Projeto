@@ -208,16 +208,16 @@ table tr > * {
   padding: 0.3em 0;
 }
 
-table tr:nth-child(2) {
+table tr >*:first-child {
+  padding-left: 0.5em;
+}
+
+table tr:nth-child(even) {
   background-color: #eee;
 }
 
 table th {
   background-color: lightgray;
-}
-
-table .delete-col a {
-  padding-left: 0.5em;
 }
 
 table .price-col {
