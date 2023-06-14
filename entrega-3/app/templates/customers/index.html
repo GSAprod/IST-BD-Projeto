@@ -17,7 +17,7 @@
           <p class="body">Customer number: {{ customer['cust_no'] }}</p>
         </div>
         <div class="post-links">
-          <a class="action" href="#TODO">View</a>
+          <a class="action" href="{{ url_for('customer_view', cust_no=customer['cust_no']) }}">View</a>
           <a class="action" href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}">Edit</a>
         </div>
       </header>

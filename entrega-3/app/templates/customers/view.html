@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}
+    Customer &#35;{{ customer['cust_no'] }} | View
+  {% endblock %}</h1>{% endblock %}
+
+{% block content %}
+  <h2>{{ customer['name'] }}</h2>
+  <div><b>Email:</b> <a href="mailto:{{ customer['email'] }}">{{ customer['email'] }}</a></div>
+  <div><b>Phone:</b> {{ customer['phone'] }}</div>
+  <div><b>Address:</b> {{customer['address'] }}</div>
+{% endblock %}

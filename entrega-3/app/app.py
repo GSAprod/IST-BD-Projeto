@@ -606,6 +606,24 @@ def customer_update(cust_no):
 
     return render_template("customers/update.html", customer=customer)
 
+@app.route("/customers/<cust_no>/view", methods=("GET", ))
+def customer_view(cust_no):
+    """Update the account balance."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            customer = cur.execute(
+                """
+                SELECT cust_no, name, email, phone, address
+                FROM customer
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    return render_template("customers/view.html", customer=customer)
+
 @app.route("/ping", methods=("GET",))
 def ping():
     log.debug("ping!")
