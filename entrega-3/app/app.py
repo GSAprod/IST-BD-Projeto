@@ -520,11 +520,26 @@ def customer_delete(cust_no):
         with conn.cursor(row_factory=namedtuple_row) as cur:
             cur.execute(
                 """
+                DELETE FROM pay
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            )
+            cur.execute(
+                """
                 DELETE FROM process
                 WHERE order_no IN (
                     SELECT order_no FROM orders
                     EXCEPT
-                    SELECT order_no FROM contains);
+                    SELECT order_no FROM pay);
+                """)
+            cur.execute(
+                """
+                DELETE FROM contains
+                WHERE order_no IN (
+                    SELECT order_no FROM orders
+                    EXCEPT
+                    SELECT order_no FROM process);
                 """)
             cur.execute(
                 """
