@@ -1,13 +1,58 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
 {% block header %}
-<h1>{% block title %}
-    Customer &#35;{{ customer['cust_no'] }} | View
-  {% endblock %}</h1>{% endblock %}
+  <h1>
+    {% block title %} Customer &#35;{{ customer['cust_no'] }} | View {% endblock %}
+  </h1>
+{% endblock %} 
 
 {% block content %}
-  <h2>{{ customer['name'] }}</h2>
-  <div><b>Email:</b> <a href="mailto:{{ customer['email'] }}">{{ customer['email'] }}</a></div>
-  <div><b>Phone:</b> {{ customer['phone'] }}</div>
-  <div><b>Address:</b> {{customer['address'] }}</div>
+  <div class="customer-details">
+    <div>
+      <h2>{{ customer['name'] }}</h2>
+      <div>
+        <b>Email:</b>
+        <a href="mailto:{{ customer['email'] }}">{{ customer['email'] }}</a>
+      </div>
+      <div><b>Phone:</b> {{ customer['phone'] }}</div>
+      <div><b>Address:</b> {{customer['address'] }}</div>
+    </div>
+    <div>
+      <a
+        href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}"
+        class="customer-view-edit"
+        >Edit customer details</a>
+    </div>
+  </div>
+  <br>
+  <hr>
+
+  <h2>Order history</h2>
+
+  {% for order in orders %}
+    <article class="post">
+      <header>
+        <div class="post-left">
+          <h1>{{ order['date'] }}</h1>
+          <div class="about">Order ID: {{ order['order_no'] }}</div>
+          <div class="about">{{ order['num_items']}} items</div>
+          {% if not order['paid'] %}
+          <p class="body">€ {{ order['total_price'] }} <b>(Awaiting payment)</b></p>
+          {% else %}
+          <p class="body">€ {{ order['total_price'] }}</p>
+          {% endif %}
+        </div>
+        <div class="post-links">
+          <a href="#TODO" class="action">View contents</a>
+          {% if not order['paid'] %}
+          <a href="#TODO" class="action">Proceed to checkout</a>
+          {% endif %}
+        </div>
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
 {% endblock %}

@@ -157,3 +157,13 @@ input[type=submit] {
   align-self: start;
   min-width: 10em;
 }
+
+.customer-details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.customer-details .customer-view-edit {
+  display: block;
+  padding: 1em;
+}

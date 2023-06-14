@@ -611,8 +611,8 @@ def customer_view(cust_no):
     """Update the account balance."""
 
     with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            customer = cur.execute(
+        with conn.cursor(row_factory=namedtuple_row) as cur2:
+            customer = cur2.execute(
                 """
                 SELECT cust_no, name, email, phone, address
                 FROM customer
@@ -620,9 +620,25 @@ def customer_view(cust_no):
                 """,
                 {"cust_no": cust_no},
             ).fetchone()
-            log.debug(f"Found {cur.rowcount} rows.")
+            log.debug(f"Found {cur2.rowcount} rows.")
+        
+        with conn.cursor(row_factory=namedtuple_row) as cur2:
+            orders = cur2.execute(
+                """
+                SELECT order_no, date, SUM(qty) AS num_items, SUM(qty*price) AS total_price,
+                    order_no IN (SELECT order_no FROM pay) AS paid
+                FROM orders JOIN contains USING (order_no) JOIN product USING (sku)
+                WHERE cust_no = %(cust_no)s
+                GROUP BY order_no
+                ORDER BY date DESC;
+                """,
+                {"cust_no": cust_no},
+            ).fetchall()
+            log.debug(f"Found {cur2.rowcount} rows.")
 
-    return render_template("customers/view.html", customer=customer)
+        
+
+    return render_template("customers/view.html", customer=customer, orders=orders)
 
 @app.route("/ping", methods=("GET",))
 def ping():
