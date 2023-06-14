@@ -46,7 +46,7 @@
             {% endif %}
           </div>
           <div class="post-links">
-            <a href="#TODO" class="action">View contents</a>
+            <a href="{{ url_for('order_view', order_no=order['order_no']) }}" class="action">View contents</a>
             {% if not order['paid'] %}
             <a href="#TODO" class="action">Proceed to checkout</a>
             {% endif %}

@@ -623,11 +623,11 @@ def customer_update(cust_no):
 
 @app.route("/customers/<cust_no>/view", methods=("GET", ))
 def customer_view(cust_no):
-    """Update the account balance."""
+    """View the account details, as well as the orders issued by the account."""
 
     with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur2:
-            customer = cur2.execute(
+        with conn.cursor(row_factory=namedtuple_row) as cur3:
+            customer = cur3.execute(
                 """
                 SELECT cust_no, name, email, phone, address
                 FROM customer
@@ -635,10 +635,10 @@ def customer_view(cust_no):
                 """,
                 {"cust_no": cust_no},
             ).fetchone()
-            log.debug(f"Found {cur2.rowcount} rows.")
+            log.debug(f"Found {cur3.rowcount} rows.")
         
-        with conn.cursor(row_factory=namedtuple_row) as cur2:
-            orders = cur2.execute(
+        with conn.cursor(row_factory=namedtuple_row) as cur3:
+            orders = cur3.execute(
                 """
                 SELECT order_no, date, SUM(qty) AS num_items, SUM(qty*price) AS total_price,
                     order_no IN (SELECT order_no FROM pay) AS paid
@@ -649,11 +649,37 @@ def customer_view(cust_no):
                 """,
                 {"cust_no": cust_no},
             ).fetchall()
-            log.debug(f"Found {cur2.rowcount} rows.")
-
-        
+            log.debug(f"Found {cur3.rowcount} rows.")
 
     return render_template("customers/view.html", customer=customer, orders=orders)
+
+@app.route("/orders/<order_no>/view", methods=("GET", ))
+def order_view(order_no):
+    """View the details and the items of an order"""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            order = cur.execute(
+                """
+                SELECT order_no, cust_no, name AS cust_name, date
+                FROM orders JOIN customer USING (cust_no)
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+        with conn.cursor(row_factory=namedtuple_row) as cur2:
+            items = cur2.execute(
+                """
+                SELECT sku, name, price, qty, price * qty AS qty_price
+                FROM product JOIN contains USING (sku)
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no},
+            ).fetchall()
+            log.debug(f"Found {cur2.rowcount} rows.")
+
+    return render_template("orders/view.html", order=order, items=items)
+
 
 @app.route("/ping", methods=("GET",))
 def ping():

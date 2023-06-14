@@ -196,3 +196,37 @@ input[type=submit] {
 .order-heading a {
   padding-right: 0.5em;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left; 
+
+} 
+
+table tr > * {
+  padding: 0.3em 0;
+}
+
+table tr:nth-child(2) {
+  background-color: #eee;
+}
+
+table th {
+  background-color: lightgray;
+}
+
+table .delete-col a {
+  padding-left: 0.5em;
+}
+
+table .price-col {
+  text-align: right;
+  padding-right: 0.5em;
+}
+
+.totals-2col {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0.5em;
+}
