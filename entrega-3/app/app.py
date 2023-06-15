@@ -661,7 +661,7 @@ def customer_view(cust_no):
                 FROM orders JOIN contains USING (order_no) JOIN product USING (sku)
                 WHERE cust_no = %(cust_no)s
                 GROUP BY order_no
-                ORDER BY date DESC;
+                ORDER BY date DESC, order_no DESC;
                 """,
                 {"cust_no": cust_no},
             ).fetchall()
@@ -909,8 +909,8 @@ def order_delete_item(order_no, product_sku):
 
     return redirect(url_for("order_view", order_no=order_no))
     
-@app.route("/orders/<total>/<order_no>/<cust_no>/payment", methods=("GET", "POST",))
-def pay_order(total, order_no, cust_no):
+@app.route("/orders/<order_no>/<cust_no>/payment", methods=("GET", ))
+def pay_order(order_no, cust_no):
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
             customer = cur.execute(
@@ -931,9 +931,13 @@ def pay_order(total, order_no, cust_no):
                 """, {"order_no": order_no},
             ).fetchall()
             log.debug(f"Found {cur2.rowcount} rows.")
+
+        total = 0
+        for i in range(len(items)):
+            total += items[i][4]
     return render_template("orders/payment.html", total=total, customer=customer, items=items, order_no=order_no)
 
-@app.route("/orders/<cust_no>/<order_no>/payment", methods=("GET", ))
+@app.route("/orders/<order_no>/<cust_no>/payment", methods=("POST", ))
 def order_paid(cust_no, order_no):
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:

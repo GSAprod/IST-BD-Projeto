@@ -291,3 +291,21 @@ table .price-col {
   font-style: italic;
   font-size: small;
 }
+
+.details-content {
+  display: grid;
+  columns: auto 2;
+  width: 50%;
+}
+
+.details-content div {
+  display: inline;
+}
+
+.details-content-left {
+  grid-column: 1;
+}
+
+.details-content-right {
+  grid-column: 2;
+}

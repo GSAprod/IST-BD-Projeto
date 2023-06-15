@@ -39,24 +39,30 @@
     <div class="details-heading">
         <h1>Payment details</h1>
     </div>
-    <div class="details">
-        <div>
-            <b>Name: </b>{{ customer['name'] }}
-            <b>Customer :</b>{{ customer['cust_no']}}
-        </div>
+    <div class="details-content">
+      <div class="details-content-left"><b>Name:</b> {{ customer['name'] }}</div>
+      <div class="details-content-right"><b>Customer:</b> {{ customer['cust_no']}}</div>
+      <div class="details-content-left"><b>Email: </b>{{ customer['email']}}</div>
+      <div class="details-content-right"><b>Phone: </b>{{ customer['phone']}}</div>
+
     </div>
 
-    <b>Email: </b>{{ customer['email']}}
 
-    <b>Phone: </b>{{ customer['phone']}}
+    <form action="{{ url_for('order_paid', cust_no=customer['cust_no'], order_no=order_no)}}" method="post">
+      <label for="address">Shipping address: </label>
+      <input name="address" id="address" type="text" value="{{ request.form['address'] or customer['address'] }}" required>
 
-    <label for="address">Shipping address: </label>
-    <input name="address" id="address" type="text" value="{{ request.form['address'] or customer['address'] }}" required>
-
-    <label for="card">Credit/Debit Card: </label><input name="card" id="carde" type="text">
-    <label for="date">Expiration date: </label><input name="date" id="date" type="text">
-
-    <a href="{{ url_for('order_paid', cust_no=customer['cust_no'], order_no=order_no)}}" class="header-button call-to-action">Pay</a>
-
+      <div class="post-2col">
+        <div>
+        <label for="card">Credit/Debit Card: </label>
+        <input name="card" id="card" type="text">
+        </div>
+        <div>
+        <label for="date">Expiration date: </label>
+        <input name="date" id="date" type="text">
+        </div>
+      </div>
+      <button type="submit" class="header-button call-to-action pay-btn">Pay</a>
+    </form>
 
 {% endblock %}
