@@ -139,7 +139,22 @@ def product_create():
                         return render_template('products/update.html', product=product, error=error)
                 conn.commit()
             return redirect(url_for("product_index"))
-    
+
+@app.route("/product/<product_sku>/view", methods=("GET", ))
+def product_view(product_sku):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            product = cur.execute(
+                """
+                SELECT name, sku, ean, price, description
+                FROM product
+                WHERE sku = %(product_sku)s;
+                """, 
+                {"product_sku": product_sku},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    return render_template("products/view.html", product=product, just_view=True)
 
 @app.route("/products/<product_sku>/update", methods=("GET", "POST"))
 def product_update(product_sku):

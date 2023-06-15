@@ -276,6 +276,12 @@ table .price-col {
   align-self: end;
 }
 
+.product-right a {
+  display: block;
+  width: max-content;
+  padding-top: 1em;
+}
+
 .product-price {
   font-size: large;
 }

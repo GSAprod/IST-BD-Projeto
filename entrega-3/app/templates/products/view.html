@@ -11,27 +11,30 @@
     <div>
       <h1>{{ product['name'] }}</h1>
       <p class="product-price"><b>€ {{ product['price'] }}</b></p>
-      <div class="product-about">Supplied by: dsgjodsfjfgs{{ product['supplier'] }}</div>
       <div class="product-about">SKU: {{ product['sku'] }}</div>
       {% if product['ean'] != None %}
       <div class="product-about">EAN: {{ product['ean'] }}</div>
       {% else %}
       <br>
       {% endif %}
-      <h3 class="product-description">Description</h3>
-      <p>{{ product['description'] }}</p>
     </div>
-
+    
     <div class="product-right">
-      {% if order_no %}
-        <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">
+      {% if just_view %}
+      <a href="{{ url_for('product_update', product_sku=product['sku']) }}">Edit product details</a>
       {% else %}
+      {% if order_no %}
+      <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">
+        {% else %}
         <form action="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" method="post">
-      {% endif %}
-        <label for="qty">Quantity</label>
-        <input name="qty" id="qty" type="number" value="{{ request.form['qty'] or product['qty'] or 1 }}" min="1">
-        <input type="submit" class="header-button call-to-action" value="Add product to order" />
-      </form>
+          {% endif %}
+          <label for="qty">Quantity</label>
+          <input name="qty" id="qty" type="number" value="{{ request.form['qty'] or product['qty'] or 1 }}" min="1">
+          <input type="submit" class="header-button call-to-action" value="Add product to order" />
+        </form>
+        {% endif %}
+      </div>
     </div>
-  </div>
+  <h3 class="product-description">Description</h3>
+  <p>{{ product['description'] }}</p>
 {% endblock %}
