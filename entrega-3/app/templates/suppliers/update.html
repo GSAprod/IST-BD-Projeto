@@ -21,12 +21,21 @@
         {% endif %}
       </div>
       <div>
-        <label for="sku">Supplier Sku</label>
-        {% if supplier['sku'] != "" %}
-        <input name="sku" id="sku" type="text" value="{{ request.form['sku'] or supplier['sku'] }}" disabled>
-        {% else %}
-        <input name="sku" id="sku" type="text">
-        {% endif %}
+        <label for="sku">Product Supplied</label>
+        <select name="sku" id="sku">
+          {% if supplier['sku'] == "" %}
+            <option value="" selected>None</option>
+          {% else %}
+            <option value="">None</option>
+          {% endif %}
+          {% for product in products %}
+            {% if supplier['sku'] == product['sku'] %}
+              <option value="{{ product['sku'] }}" selected>{{ product['name'] }} - {{ product['sku'] }}</option>
+            {% else %}
+              <option value="{{ product['sku'] }}">{{ product['name'] }} - {{ product['sku'] }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
       </div>
     </div>
     

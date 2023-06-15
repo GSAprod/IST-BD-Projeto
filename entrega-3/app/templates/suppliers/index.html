@@ -12,7 +12,11 @@
         <div class="post-left">
           <h1>{{ supplier['name'] }}</h1>
           <div class="about">in: {{ supplier['address'] }}</div>
+          {% if supplier['sku'] %}
           <div class="about">sku: {{ supplier['sku'] }}</div>
+          {% else %}
+          <br>
+          {% endif %}
           <div class="about">{{ supplier['date'] }}</div>
           <p class="body"> {{ supplier['tin'] }}</p>
         </div>

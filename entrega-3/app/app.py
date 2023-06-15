@@ -316,7 +316,16 @@ def supplier_create():
     }
 
     if request.method == "GET":
-        return render_template("suppliers/update.html", supplier=supplier)
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                products = cur.execute(
+                    """
+                    SELECT product.name AS name, sku
+                    FROM product LEFT JOIN supplier USING (sku)
+                    WHERE tin is NULL;
+                    """
+                ).fetchall()
+        return render_template("suppliers/update.html", supplier=supplier, products=products)
     
     elif request.method == "POST":
         tin = request.form["tin"]
@@ -365,7 +374,16 @@ def supplier_create():
                     except psycopg.errors.IntegrityError:
                         conn.rollback()
                         error = "TIN already exists."
-                        return render_template("suppliers/update.html", supplier=supplier, error=error)
+                        with pool.connection() as conn:
+                            with conn.cursor(row_factory=namedtuple_row) as cur:
+                                products = cur.execute(
+                                    """
+                                    SELECT product.name AS name, sku
+                                    FROM product LEFT JOIN supplier USING (sku)
+                                    WHERE tin is NULL;
+                                    """
+                                ).fetchall()
+                        return render_template("suppliers/update.html", supplier=supplier, products=products, error=error)
                 conn.commit()
             return redirect(url_for("supplier_index"))
 
@@ -407,12 +425,20 @@ def supplier_update(tin):
                 """,
                 {"tin": tin},
             ).fetchone()
-            log.debug(f"Found {cur.rowcount} rows.")
+            if request.method == "GET":
+                products = cur.execute(
+                    """
+                    SELECT product.name AS name, sku
+                    FROM product LEFT JOIN supplier USING (sku)
+                    WHERE tin is NULL OR tin = %(tin)s;
+                    """, {"tin": tin}
+                ).fetchall()
 
     if request.method == "POST":
         address = request.form["address"]
         name = request.form["name"]
         date = request.form["date"]
+        sku = request.form["sku"]
 
         error = None
 
@@ -430,22 +456,40 @@ def supplier_update(tin):
             error = "Date is required."
 
         if error is not None:
-            return render_template('suppliers/update.html', supplier=supplier, error=error)
+            products = cur.execute(
+                """
+                SELECT product.name AS name, sku
+                FROM product LEFT JOIN supplier USING (sku)
+                WHERE tin is NULL OR tin = %(tin)s;
+                """, {"tin": tin}
+            ).fetchall()
+            return render_template('suppliers/update.html', supplier=supplier, products=products, error=error)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
-                    cur.execute(
-                        """
-                        UPDATE supplier
-                        SET address = %(address)s, name = %(name)s, date = %(date)s
-                        WHERE tin = %(tin)s;
-                        """,
-                        {"tin": tin, "address": address, "name": name, "date": date},
-                    )
+                    if sku != "":
+                        cur.execute(
+                            """
+                            UPDATE supplier
+                            SET address = %(address)s, name = %(name)s, date = %(date)s, sku = %(sku)s
+                            WHERE tin = %(tin)s;
+                            """,
+                            {"tin": tin, "address": address, "name": name, 
+                             "date": date, "sku": sku},
+                        )
+                    else:
+                        cur.execute(
+                            """
+                            UPDATE supplier
+                            SET address = %(address)s, name = %(name)s, date = %(date)s, sku = NULL
+                            WHERE tin = %(tin)s;
+                            """,
+                            {"tin": tin, "address": address, "name": name, "date": date},
+                        )
                 conn.commit()
             return redirect(url_for("supplier_index"))
 
-    return render_template("suppliers/update.html", supplier=supplier, error=None)
+    return render_template("suppliers/update.html", supplier=supplier, products=products, error=None)
 
 @app.route("/customers", methods=("GET",))
 def customer_index():
