@@ -326,7 +326,7 @@ def supplier_create():
         date = request.form["date"]
 
         error = None
-
+        
         if not address:
             error = "Address is required."
         else:
@@ -346,13 +346,22 @@ def supplier_create():
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
                     try:
-                        cur.execute(
-                            """
-                            INSERT INTO supplier
-                            VALUES (%(tin)s, %(name)s, %(address)s, %(sku)s, %(date)s);
-                            """,
-                            {"tin": tin, "name": name, "address": address, "sku": sku, "date": date},
-                        )
+                        if(sku):
+                            cur.execute(
+                                """
+                                INSERT INTO supplier
+                                VALUES (%(tin)s, %(name)s, %(address)s, %(sku)s, %(date)s);
+                                """,
+                                {"tin": tin, "name": name, "address": address, "sku": sku, "date": date},
+                            )
+                        else:
+                             cur.execute(
+                                """
+                                INSERT INTO supplier
+                                VALUES (%(tin)s, %(name)s, %(address)s, NULL, %(date)s);
+                                """,
+                                {"tin": tin, "name": name, "address": address, "date": date},
+                            )
                     except psycopg.errors.IntegrityError:
                         conn.rollback()
                         error = "TIN already exists."
