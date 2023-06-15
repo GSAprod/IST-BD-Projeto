@@ -55,7 +55,7 @@
     {% if supplier['date'] != "" %}
     <input name="date" id="date" type="date" value="{{request.form['date'] or supplier['date']}}" required>
     {% else %}
-    <input name="date" id="date" type="text">
+    <input name="date" id="date" type="date">
     {% endif %}
 
     {% if error %}
