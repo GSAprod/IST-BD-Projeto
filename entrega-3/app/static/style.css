@@ -249,3 +249,8 @@ table .price-col {
   font-family: inherit;
   font-size: inherit;
 }
+
+.order-add-product input[type=submit] {
+  font-family: inherit;
+  font-size: inherit;
+}

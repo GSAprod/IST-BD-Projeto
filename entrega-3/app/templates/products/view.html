@@ -7,6 +7,11 @@
 {% endblock %} 
 
 {% block content %}
+  {% if order_no %}
+  <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">
+  {% else %}
+  <form action="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" method="post">
+  {% endif %}
   <table>
     <tr>
       <th>SKU</th>
@@ -20,20 +25,15 @@
       <td>{{ product['name']}}</td>
       <td>€ {{ product['price'] }}</td>
       <td>    
-        <input name="qty" id="qty" type="text" value="{{ request.form['qty'] or product['qty'] }}">
+        <input name="qty" id="qty" type="number" value="{{ request.form['qty'] or product['qty'] or 1 }}" min="1">
       </td>
       <td>{{ product['description'] }}</td>
     </tr>
   </table>
 
     <div class="order-add-product">
-        <p>
-            {% if order_no %}
-            <a href="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" class="header-button call-to-action">Add product to order</a>
-            {% else %}
-            <a href="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" class="header-button call-to-action">Add product to order</a>
-            {% endif %}
-        </p>
+      <p><input type="submit" class="header-button call-to-action" value="Add product to order" /></p>
     </div>
+  </form>
 
 {% endblock %}

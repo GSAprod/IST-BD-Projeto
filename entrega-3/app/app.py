@@ -783,9 +783,13 @@ def create_order(sku, cust_no):
 
 
 
-@app.route("/orders/<sku>/<cust_no>/<order_no>/add_product_qty", methods=("GET", ))
+@app.route("/orders/<sku>/<cust_no>/<order_no>/add_product_qty", methods=("POST", ))
 def add_product_qty(sku, cust_no, order_no):
-    qty=1
+    qty=int(request.form["qty"])
+    if qty <= 0:
+        error = "Quantity has to be larger than 0."
+        flash(error)
+
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
             product_in_order = cur.execute(
