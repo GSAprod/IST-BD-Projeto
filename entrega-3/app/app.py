@@ -52,8 +52,7 @@ def product_index():
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product
-                ORDER BY sku DESC;
+                FROM product;
                 """,
                 {},
             ).fetchall()
