@@ -788,26 +788,33 @@ def add_product_qty(sku, cust_no, order_no):
     qty=1
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
-            cur.execute(
+            product_in_order = cur.execute(
                 """
-                INSERT INTO contains
-                VALUES (%(order_no)s, %(sku)s, %(qty)s);
+                SELECT COUNT(1) FROM contains
+                WHERE order_no = %(order_no)s AND sku = %(sku)s;
                 """,
-                {"order_no": order_no, "sku": sku, "qty": qty},
-            )
-            products = cur.execute(
-                """
-                SELECT sku, name, price, ean
-                FROM product
-                ORDER BY sku ASC;
-                """,
-                {},
-            ).fetchall()
-            log.debug(f"Found {cur.rowcount} rows.")
-            log.debug(f"Found {cur.rowcount} rows.")
+                {"order_no": order_no, "sku": sku}
+            ).fetchone()
+            if product_in_order[0] == 1:
+                cur.execute(
+                    """
+                    UPDATE contains
+                    SET qty = qty + %(qty)s
+                    WHERE order_no = %(order_no)s AND sku = %(sku)s;
+                    """,
+                    {"order_no": order_no, "sku": sku, "qty": qty},
+                )
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO contains
+                    VALUES (%(order_no)s, %(sku)s, %(qty)s);
+                    """,
+                    {"order_no": order_no, "sku": sku, "qty": qty},
+                )
         conn.commit()
 
-    return render_template("products/index.html", products=products, cust_no=cust_no,order_no=order_no)
+    return redirect(url_for("show_products", cust_no=cust_no, order_no=order_no))
 
 @app.route("/orders/<order_no>/view", methods=("GET", ))
 def order_view(order_no):
