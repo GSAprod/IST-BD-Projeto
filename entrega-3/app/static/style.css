@@ -254,3 +254,34 @@ table .price-col {
   font-family: inherit;
   font-size: inherit;
 }
+
+.product-2col {
+  display: flex;
+  justify-content: space-between;
+}
+
+.product-right * {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.product-right form input[type=number] {
+  width: 4.5em;
+}
+
+.product-right form input[type=submit] {
+  padding-left: 0;
+  padding-right: 0;
+  align-self: end;
+}
+
+.product-price {
+  font-size: large;
+}
+
+.product-about {
+  color: slategray;
+  font-style: italic;
+  font-size: small;
+}

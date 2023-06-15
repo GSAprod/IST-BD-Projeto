@@ -2,38 +2,36 @@
 
 {% block header %}
   <h1>
-    {% block title %}Insert the quantity{% endblock %}
+    {% block title %}Product &#35;{{ product['sku'] }} | View{% endblock %}
   </h1>
 {% endblock %} 
 
 {% block content %}
-  {% if order_no %}
-  <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">
-  {% else %}
-  <form action="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" method="post">
-  {% endif %}
-  <table>
-    <tr>
-      <th>SKU</th>
-      <th>Product name</th>
-      <th>Price per unit</th>
-      <th>Qty.</th>
-      <th>Description</th>
-    </tr>
-    <tr>
-      <td>{{ product['sku'] }}</td>
-      <td>{{ product['name']}}</td>
-      <td>€ {{ product['price'] }}</td>
-      <td>    
-        <input name="qty" id="qty" type="number" value="{{ request.form['qty'] or product['qty'] or 1 }}" min="1">
-      </td>
-      <td>{{ product['description'] }}</td>
-    </tr>
-  </table>
-
-    <div class="order-add-product">
-      <p><input type="submit" class="header-button call-to-action" value="Add product to order" /></p>
+  <div class="product-2col">
+    <div>
+      <h1>{{ product['name'] }}</h1>
+      <p class="product-price"><b>€ {{ product['price'] }}</b></p>
+      <div class="product-about">Supplied by: dsgjodsfjfgs{{ product['supplier'] }}</div>
+      <div class="product-about">SKU: {{ product['sku'] }}</div>
+      {% if product['ean'] != None %}
+      <div class="product-about">EAN: {{ product['ean'] }}</div>
+      {% else %}
+      <br>
+      {% endif %}
+      <h3 class="product-description">Description</h3>
+      <p>{{ product['description'] }}</p>
     </div>
-  </form>
 
+    <div class="product-right">
+      {% if order_no %}
+        <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">
+      {% else %}
+        <form action="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" method="post">
+      {% endif %}
+        <label for="qty">Quantity</label>
+        <input name="qty" id="qty" type="number" value="{{ request.form['qty'] or product['qty'] or 1 }}" min="1">
+        <input type="submit" class="header-button call-to-action" value="Add product to order" />
+      </form>
+    </div>
+  </div>
 {% endblock %}
