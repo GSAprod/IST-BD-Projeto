@@ -12,6 +12,7 @@ from flask import request
 from flask import url_for
 from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
+from datetime import date
 
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
@@ -54,7 +55,7 @@ def product_index():
                 """
                 SELECT sku, name, price, ean
                 FROM product
-                ORDER BY sku ASC;
+                ORDER BY sku DESC;
                 """,
                 {},
             ).fetchall()
@@ -652,6 +653,161 @@ def customer_view(cust_no):
             log.debug(f"Found {cur3.rowcount} rows.")
 
     return render_template("customers/view.html", customer=customer, orders=orders)
+
+@app.route("/customers/<cust_no>/new_order", methods=("GET","POST",))
+def customer_new_order(cust_no):
+    """Show all the products available to order."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            products = cur.execute(
+                """
+                SELECT sku, name, price, ean
+                FROM product
+                ORDER BY sku DESC;
+                """,
+                {},
+            ).fetchall()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    # API-like response is returned to clients that request JSON explicitly (e.g., fetch)
+    if (
+        request.accept_mimetypes["application/json"]
+        and not request.accept_mimetypes["text/html"]
+    ):
+        return jsonify(products)
+
+    return render_template("products/index.html", products=products, cust_no=cust_no)
+
+@app.route("/customers/<cust_no>/<order_no>/show_products", methods=("GET","POST",))
+def show_products(cust_no, order_no):
+    """Show all the products available to order."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            products = cur.execute(
+                """
+                SELECT sku, name, price, ean
+                FROM product
+                ORDER BY sku DESC;
+                """,
+                {},
+            ).fetchall()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    # API-like response is returned to clients that request JSON explicitly (e.g., fetch)
+    if (
+        request.accept_mimetypes["application/json"]
+        and not request.accept_mimetypes["text/html"]
+    ):
+        return jsonify(products)
+
+    return render_template("products/index.html", products=products, cust_no=cust_no, order_no=order_no)
+
+
+@app.route("/orders/<product_sku>/<cust_no>/add_product", methods=("GET", ))
+def order_add_product(product_sku, cust_no):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            product = cur.execute(
+                """
+                SELECT name, sku, ean, price, description
+                FROM product
+                WHERE sku = %(product_sku)s;
+                """, 
+                {"product_sku": product_sku},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    return render_template("products/view.html", product=product, cust_no=cust_no)
+
+@app.route("/orders/<product_sku>/<cust_no>/<order_no>/add_product", methods=("GET", ))
+def order_add_more_product(product_sku, cust_no, order_no):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            product = cur.execute(
+                """
+                SELECT name, sku, ean, price, description
+                FROM product
+                WHERE sku = %(product_sku)s;
+                """, 
+                {"product_sku": product_sku},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    return render_template("products/view.html", product=product, cust_no=cust_no, order_no=order_no)
+
+@app.route("/orders/<sku>/<cust_no>/create_order", methods=("GET","POST", ))
+def create_order(sku, cust_no):
+    qty=1 
+    global order_no_count
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                SELECT order_no FROM orders
+                ORDER BY order_no DESC;
+                """,
+            )
+            orders = cur.fetchall()
+            order_no_count = 0
+            if orders:
+                order_no_count = orders[0][0]
+            cur.execute(
+                """
+                INSERT INTO orders
+                VALUES (%(order_no)s, %(cust_no)s, CURRENT_TIMESTAMP);
+                """,
+                {"order_no": order_no_count+1, "cust_no": cust_no},
+            )
+            cur.execute(
+                """
+                INSERT INTO contains
+                VALUES (%(order_no)s, %(sku)s, %(qty)s);
+                """,
+                {"order_no": order_no_count+1, "sku": sku, "qty": qty},
+            )
+            products = cur.execute(
+                """
+                SELECT sku, name, price, ean
+                FROM product
+                ORDER BY sku ASC;
+                """,
+                {},
+            ).fetchall()
+            log.debug(f"Found {cur.rowcount} rows.")
+            log.debug(f"Found {cur.rowcount} rows.")
+        conn.commit()
+
+    return render_template("products/index.html", products=products, cust_no=cust_no,order_no=order_no_count+1)
+
+
+
+@app.route("/orders/<sku>/<cust_no>/<order_no>/add_product_qty", methods=("GET", ))
+def add_product_qty(sku, cust_no, order_no):
+    qty=1
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                INSERT INTO contains
+                VALUES (%(order_no)s, %(sku)s, %(qty)s);
+                """,
+                {"order_no": order_no, "sku": sku, "qty": qty},
+            )
+            products = cur.execute(
+                """
+                SELECT sku, name, price, ean
+                FROM product
+                ORDER BY sku ASC;
+                """,
+                {},
+            ).fetchall()
+            log.debug(f"Found {cur.rowcount} rows.")
+            log.debug(f"Found {cur.rowcount} rows.")
+        conn.commit()
+
+    return render_template("products/index.html", products=products, cust_no=cust_no,order_no=order_no)
 
 @app.route("/orders/<order_no>/view", methods=("GET", ))
 def order_view(order_no):

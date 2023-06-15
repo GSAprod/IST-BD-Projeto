@@ -1,0 +1,39 @@
+{% extends 'base.html' %} 
+
+{% block header %}
+  <h1>
+    {% block title %}Insert the quantity{% endblock %}
+  </h1>
+{% endblock %} 
+
+{% block content %}
+  <table>
+    <tr>
+      <th>SKU</th>
+      <th>Product name</th>
+      <th>Price per unit</th>
+      <th>Qty.</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>{{ product['sku'] }}</td>
+      <td>{{ product['name']}}</td>
+      <td>€ {{ product['price'] }}</td>
+      <td>    
+        <input name="qty" id="qty" type="text" value="{{ request.form['qty'] or product['qty'] }}">
+      </td>
+      <td>{{ product['description'] }}</td>
+    </tr>
+  </table>
+
+    <div class="order-add-product">
+        <p>
+            {% if order_no %}
+            <a href="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" class="header-button call-to-action">Add product to order</a>
+            {% else %}
+            <a href="{{ url_for('create_order', sku=product['sku'], cust_no=cust_no) }}" class="header-button call-to-action">Add product to order</a>
+            {% endif %}
+        </p>
+    </div>
+
+{% endblock %}

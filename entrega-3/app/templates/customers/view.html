@@ -29,7 +29,8 @@
 
   <div class="order-heading">
     <h2>Order history</h2>
-    <a href="#TODO" class="header-button call-to-action">+ New order</a>
+    <a href="{{ url_for('customer_new_order', cust_no=customer['cust_no'])}}" 
+    class="header-button call-to-action">+ New order</a>
   </div>
   {% if orders != [] %}
     {% for order in orders %}

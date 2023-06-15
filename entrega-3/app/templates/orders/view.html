@@ -25,7 +25,7 @@
   <div class="order-heading">
     <h1>Items</h1>
     {% if not order['paid'] %}
-    <a href="#TODO" class="header-button call-to-action">+ Add item</a>
+    <a href="{{ url_for('show_products', cust_no=order['cust_no'], order_no=order['order_no'])}}" class="header-button call-to-action">+ Add item</a>
     {% endif %}
   </div>
 
