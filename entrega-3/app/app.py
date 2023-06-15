@@ -909,7 +909,42 @@ def order_delete_item(order_no, product_sku):
 
     return redirect(url_for("order_view", order_no=order_no))
     
+@app.route("/orders/<total>/<order_no>/<cust_no>/payment", methods=("GET", "POST",))
+def pay_order(total, order_no, cust_no):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            customer = cur.execute(
+                """
+                SELECT cust_no, name, email, phone, address
+                FROM customer
+                WHERE cust_no = %(cust_no)s;
+                """, 
+                {"cust_no": cust_no},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+        with conn.cursor(row_factory=namedtuple_row) as cur2:
+            items = cur2.execute(
+                """
+                SELECT sku, name, price, qty, price * qty AS qty_price
+                FROM product JOIN contains USING (sku)
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no},
+            ).fetchall()
+            log.debug(f"Found {cur2.rowcount} rows.")
+    return render_template("orders/payment.html", total=total, customer=customer, items=items, order_no=order_no)
 
+@app.route("/orders/<cust_no>/<order_no>/payment", methods=("GET", ))
+def order_paid(cust_no, order_no):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+                INSERT INTO pay
+                VALUES (%(order_no)s, %(cust_no)s);
+                """,
+                {"order_no": order_no, "cust_no": cust_no},
+            )
+    return redirect(url_for("customer_view", cust_no=cust_no))
 
 @app.route("/ping", methods=("GET",))
 def ping():
