@@ -34,7 +34,7 @@
             {% endif %}
           {% else %}
           <a class="action" href="#TODO">View</a>
-          <a class="action" href="{{ url_for('product_update', product_sku=product['sku']) }}">Edit</a>
+          <a class="action" href="{{ url_for('product_update', product_sku=product['sku'], error='') }}">Edit</a>
           {% endif %}
         </div>
       </header>

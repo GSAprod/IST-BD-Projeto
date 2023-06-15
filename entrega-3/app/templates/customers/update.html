@@ -47,6 +47,11 @@
     {% else %}
     <input name="address" id="address" type="text">
     {% endif %}
+
+    {% if error %}
+    <p class="error-messsage"><b>Error:</b> {{ error }}</p>
+    {% endif %}
+    
     <input type="submit" value="Save">
   </form>
   <hr>

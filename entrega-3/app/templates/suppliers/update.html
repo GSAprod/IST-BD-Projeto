@@ -48,6 +48,11 @@
     {% else %}
     <input name="date" id="date" type="text">
     {% endif %}
+
+    {% if error %}
+    <p class="error-messsage"><b>Error:</b> {{ error }}</p>
+    {% endif %}
+
     <input type="submit" value="Save">
   </form>
   {% if supplier['tin'] != "" %}

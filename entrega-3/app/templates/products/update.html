@@ -40,6 +40,11 @@
     {% endif %}
     <label for="description">Description</label>
     <textarea name="description" id="product_description" type="text" value="">{{ request.form['description'] or product['description'] }}</textarea>
+    
+    {% if error %}
+    <p class="error-messsage"><b>Error:</b> {{ error }}</p>
+    {% endif %}
+
     <input type="submit" value="Save">
   </form>
   {% if product['sku'] != "" %}
