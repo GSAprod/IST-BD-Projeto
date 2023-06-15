@@ -288,7 +288,7 @@ def supplier_index():
                 """
                 SELECT tin, name, address, sku, date
                 FROM supplier
-                ORDER BY tin DESC;
+                ORDER BY date DESC;
                 """,
                 {},
             ).fetchall()
