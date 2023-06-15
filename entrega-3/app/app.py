@@ -11,7 +11,6 @@ from flask import request
 from flask import url_for
 from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
-from datetime import date
 
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
@@ -731,8 +730,7 @@ def customer_new_order(cust_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product
-                ORDER BY sku DESC;
+                FROM product;
                 """,
                 {},
             ).fetchall()
@@ -756,8 +754,7 @@ def show_products(cust_no, order_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product
-                ORDER BY sku DESC;
+                FROM product;
                 """,
                 {},
             ).fetchall()
@@ -838,8 +835,7 @@ def create_order(sku, cust_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product
-                ORDER BY sku ASC;
+                FROM product;
                 """,
                 {},
             ).fetchall()
