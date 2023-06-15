@@ -21,7 +21,9 @@
     
     <div class="product-right">
       {% if just_view %}
-      <a href="{{ url_for('product_update', product_sku=product['sku']) }}">Edit product details</a>
+        {% if manager %}
+          <a href="{{ url_for('product_update', product_sku=product['sku']) }}">Edit product details</a>
+        {% endif %}
       {% else %}
       {% if order_no %}
       <form action="{{ url_for('add_product_qty', sku=product['sku'], cust_no=cust_no, order_no=order_no) }}" method="post">

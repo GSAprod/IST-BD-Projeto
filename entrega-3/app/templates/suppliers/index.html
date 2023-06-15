@@ -2,7 +2,9 @@
 
 {% block header %}
   <h1>{% block title %}Suppliers{% endblock %}</h1>
-  <a href="{{ url_for('supplier_create') }}" class="header-button call-to-action">+ Add supplier</a>
+  {% if manager %}
+    <a href="{{ url_for('supplier_create') }}" class="header-button call-to-action">+ Add supplier</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -21,7 +23,9 @@
           <p class="body"> {{ supplier['tin'] }}</p>
         </div>
         <div class="post-links">
-          <a class="action" href="{{ url_for('supplier_update', tin=supplier['tin']) }}">Edit</a>
+          {% if manager %}
+            <a class="action" href="{{ url_for('supplier_update', tin=supplier['tin']) }}">Edit</a>
+          {% endif %}  
         </div>
       </header>
     </article>

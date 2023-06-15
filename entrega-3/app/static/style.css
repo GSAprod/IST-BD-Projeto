@@ -11,13 +11,13 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: serif;
-  color: #377ba8;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #555;
   margin: 1rem 0;
 }
 
 a {
-  color: #377ba8;
+  color: #0b65c5;
 }
 
 hr {
@@ -80,7 +80,7 @@ header .header-button {
   margin: 1em 0;
   padding: 1em;
   background: #cae6f6;
-  border: 1px solid #377ba8;
+  border: 1px solid #007bff;
 }
 
 .post > header {
@@ -161,7 +161,7 @@ header .header-button {
 .call-to-action {
   text-decoration: none;
   background-color: #DDDDDD;
-  color: #333333;
+  color: #333;
   padding: 2px 6px 2px 6px;
   border: 1px solid #BBBBBB;
   border-radius: 0.2em;
@@ -242,7 +242,7 @@ table .price-col {
   outline: none;
   background: none;
   cursor: pointer;
-  color: #377ba8;
+  color: #922a0d;
   margin: 0;
   padding: 0;
   text-decoration: underline;

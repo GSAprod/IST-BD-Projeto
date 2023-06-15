@@ -25,14 +25,18 @@
   <div class="order-heading">
     <h1>Items</h1>
     {% if not order['paid'] %}
-    <a href="{{ url_for('show_products', cust_no=order['cust_no'], order_no=order['order_no'])}}" class="header-button call-to-action">+ Add item</a>
+      {% if not manager %}  
+        <a href="{{ url_for('show_products', cust_no=order['cust_no'], order_no=order['order_no'])}}" class="header-button call-to-action">+ Add item</a>
+      {% endif %}
     {% endif %}
   </div>
 
   <table>
     <tr>
       {% if not order['paid'] %}
-      <th class="delete-col"></th>
+        {% if not manager %}
+          <th class="delete-col"></th>
+        {% endif %}
       {% endif %}
       <th>SKU</th>
       <th>Product name</th>
@@ -43,14 +47,16 @@
     {% for item in items %}
     <tr>
       {% if not order['paid'] %}
-      <td class="delete-col">
-        <form 
-          action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku']) }}" 
-          method="post"
-          class="order-delete-item-form"
-          >
-          <button type="submit" class="order-delete-item">X</button>
-        </form>
+        {% if not manager %}
+          <td class="delete-col">
+            <form 
+              action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku']) }}" 
+              method="post"
+              class="order-delete-item-form"
+              >
+              <button type="submit" class="order-delete-item">X</button>
+            </form>
+        {% endif %}
       {% endif %}
       <td>{{ item['sku'] }}</td>
       <td>{{ item['name']}}</td>
@@ -67,7 +73,9 @@
   </div>
 
   {% if not order['paid'] %}
-  <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
+    {% if not manager %}
+      <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
+    {% endif %}
   {% endif %}
 
 {% endblock %}

@@ -14,14 +14,17 @@
         <b>Email:</b>
         <a href="mailto:{{ customer['email'] }}">{{ customer['email'] }}</a>
       </div>
+      <div><b>Password: </b>*********</div>
       <div><b>Phone:</b> {{ customer['phone'] }}</div>
       <div><b>Address:</b> {{customer['address'] }}</div>
     </div>
     <div>
-      <a
-        href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}"
-        class="customer-view-edit"
-        >Edit customer details</a>
+      {% if not manager %}
+        <a
+          href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}"
+          class="customer-view-edit"
+          >Edit customer details</a>
+      {% endif %}
     </div>
   </div>
   <br>
@@ -29,8 +32,10 @@
 
   <div class="order-heading">
     <h2>Order history</h2>
-    <a href="{{ url_for('customer_new_order', cust_no=customer['cust_no'])}}" 
-    class="header-button call-to-action">+ New order</a>
+    {% if not manager %}
+      <a href="{{ url_for('customer_new_order', cust_no=customer['cust_no'])}}" 
+      class="header-button call-to-action">+ New order</a>
+    {% endif %}
   </div>
   {% if orders != [] %}
     {% for order in orders %}
@@ -49,7 +54,9 @@
           <div class="post-links">
             <a href="{{ url_for('order_view', order_no=order['order_no']) }}" class="action">View contents</a>
             {% if not order['paid'] %}
-            <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>
+              {% if not manager %}
+                <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>
+              {% endif %}
             {% endif %}
           </div>
         </header>
