@@ -49,7 +49,7 @@
           <div class="post-links">
             <a href="{{ url_for('order_view', order_no=order['order_no']) }}" class="action">View contents</a>
             {% if not order['paid'] %}
-            <a href="{{ url_for('pay_order', total=order['total_price'], order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>
+            <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>
             {% endif %}
           </div>
         </header>

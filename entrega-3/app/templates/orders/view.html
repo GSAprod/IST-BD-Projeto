@@ -67,7 +67,7 @@
   </div>
 
   {% if not order['paid'] %}
-  <a href="{{ url_for('pay_order', total=total, order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
+  <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
   {% endif %}
 
 {% endblock %}
