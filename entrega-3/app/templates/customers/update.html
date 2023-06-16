@@ -20,7 +20,11 @@
   {% endblock %}</h1>{% endblock %}
 
 {% block content %}
-  <form method="post" class="login-form">    
+  {% if customer['cust_no'] != "" %}
+  <form method="post">  
+  {% else %}
+  <form method="post" class="login-form">  
+  {% endif %}
     <label for="name">Name</label>
     {% if customer['name']!="" %}
     <input name="name" id="name" type="text" value="{{ request.form['name'] or customer['name'] }}">
