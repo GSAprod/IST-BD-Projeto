@@ -42,28 +42,46 @@ app = Flask(__name__)
 log = app.logger
 
 @app.route("/", methods=("GET",))
-@app.route("/StoreName", methods=("GET", "POST", ))
+@app.route("/StoreName", methods=("GET", ))
 def login_account():
     return render_template("login/init.html")
 
-@app.route("/customer-login", methods=("GET", "POST", ))
+@app.route("/customer-login", methods=("GET", "POST"))
 def customer_login():
+    if request.method == "POST":
+        username=request.form['username']
+
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                is_login_sucessful = cur.execute(
+                    """
+                    SELECT COUNT(1) FROM customer WHERE cust_no = %(cust_no)s;
+                    """,
+                    {"cust_no": username}
+                ).fetchone()
+                log.debug("Login " + str(is_login_sucessful))
+                if not is_login_sucessful[0]:
+                    error = "Customer does not exist."
+                    return render_template("login/login.html", cust=True, error=error)
+                else:
+                    return redirect(url_for("product_index", cust_no=username))
+
     return render_template("login/login.html", cust=True)
 
 @app.route("/customer-signin", methods=("GET", "POST", ))
 def customer_signin():
     return render_template("customers/update.html", new=True)
 
-@app.route("/manager-signin", methods=("GET", "POST", ))
+@app.route("/manager-signin", methods=("GET", ))
 def manager_signin():
     return render_template("managers/create.html", new=True)
 
 
-@app.route("/manager-login", methods=("GET", "POST", ))
+@app.route("/manager-login", methods=("GET", ))
 def manager_login():
     return render_template("login/login.html")
  
-@app.route("/manager-check-login", methods=("GET", "POST", ))
+@app.route("/manager-login", methods=("POST", ))
 def check_man_login():
     username=request.form['username']
     with pool.connection() as conn:
@@ -81,26 +99,7 @@ def check_man_login():
                 return render_template("login/login.html",error=error)
     return redirect(url_for("product_index", cust_no=0))
 
-
-@app.route("/customer-login", methods=("GET", "POST", ))
-def check_cust_login():
-    username=request.form['username']
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            try:    
-                cur.execute(
-                    """
-                    SELECT cust_no FROM customers WHERE cust_no = %(cust_no)s;
-                    """,
-                    {"cust_no": username}
-                )
-            except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
-                conn.rollback()
-                error = "Customer does not exists."
-                return redirect("customer_login")
-    return redirect(url_for("product_index", cust_no=username))
-
-@app.route("/products/<cust_no>", methods=("GET",))
+@app.route("/products/<cust_no>", methods=("GET", ))
 def product_index(cust_no):
     """Show all the accounts, most recent first."""
 

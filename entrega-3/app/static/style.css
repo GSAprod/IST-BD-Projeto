@@ -11,12 +11,22 @@ html {
 }
 
 form {
-  max-width: 300px;
   margin: 0 auto;
   padding: 20px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+
+.login-form {
+  max-width: 300px;
+}
+
+.login-form * {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  width: 100%;
 }
 
 label {
@@ -25,14 +35,12 @@ label {
   color: #333;
 }
 
-input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+input[type="text"], input[type="password"] {
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
 input[type="submit"] {
   width: 100%;
@@ -226,7 +234,8 @@ header .header-button {
 }
 
 input.danger {
-  color: #cc2f2e;
+  background-color: #cc2f2e;
+  margin-bottom: 0;
 }
 
 input[type=submit] {

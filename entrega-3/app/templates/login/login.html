@@ -12,25 +12,35 @@
     <h1>Welcome to StoreName</h1>
     </div>
     {% if cust %}
-      <form class="action" href="{{ url_for('check_cust_login')}}>
-      method="POST">
-          <label for="username">Username:</label>
+      <form method="post" class="login-form">
+        <div>
+          <label for="username">Customer number:</label>
           <input type="text" id="username" name="username" required>
-      
+        </div>
+        <div>
           <label for="password">Password:</label>
           <input type="password" id="password" name="password" required>
-      
+        </div>
+
+          {% if error %}
+          <p>{{ error }}</p>
+          {% endif %}
+
           <input type="submit" value="Login">
         </form>
     {% else %}
-      <form class="action" href="{{ url_for('check_man_login')}}>
+      <form class="login-form" action="{{ url_for('check_man_login')}}>
         method="POST">
           <label for="username">Username:</label>
           <input type="text" id="username" name="username" required>
       
           <label for="password">Password:</label>
           <input type="password" id="password" name="password" required>
-      
+
+          {% if error %}
+          <p>{{ error }}</p>
+          {% endif %}
+          
           <input type="submit" value="Login">
         </form>
     {% endif %}
