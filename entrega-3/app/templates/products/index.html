@@ -9,13 +9,8 @@
 
 {% block header %}
   <h1>{% block title %}Products{% endblock %}</h1>
-  {% if not cust_no %}
-   {% if cust_no=='0' %}
-      <a href="{{ url_for('product_create') }}" class="header-button call-to-action">+ Add product</a>
-    {% else %}
-      <a href="{{ url_for('customer_new_order', cust_no=customer['cust_no'])}}" 
-      class="header-button call-to-action">+ New order</a>
-    {% endif %}
+  {% if cust_no=='0' %}
+    <a href="{{ url_for('product_create') }}" class="header-button call-to-action">+ Add product</a>
   {% elif order_no %}
   <a href="{{ url_for('order_view', order_no=order_no, cust_no=cust_no) }}" class="header-button call-to-action">View order</a> 
   {% endif %}
