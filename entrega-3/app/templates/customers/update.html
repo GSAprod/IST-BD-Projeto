@@ -1,14 +1,19 @@
 {% if not new %}
   {% if cust_no=='0' %}
     {% extends 'base.html' %}
+    {% block storeManagerLink %}/products/0{% endblock %}
   {% else %}
     {% extends 'base_cust.html' %}
+    {% block storeLink %}/products/{{ cust_no }}{% endblock %}
   {% endif %}
 {% else %}
   <!doctype html>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 {% endif %}
+
+
+
 
 {% block header %}
 <h1>{% block title %}

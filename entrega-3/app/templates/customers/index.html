@@ -7,6 +7,9 @@
   <h1>{% block title %}Customers{% endblock %}</h1>
 {% endblock %}
 
+{% block storeLink %}/products/{{ cust_no }}{% endblock %}
+{% block storeManagerLink %}/products/0{% endblock %}
+
 {% block content %}
   {% for customer in customers %}
     <article class="post">

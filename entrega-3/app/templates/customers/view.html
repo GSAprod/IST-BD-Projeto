@@ -4,6 +4,9 @@
   {% extends 'base_cust.html' %}
 {% endif %}
 
+{% block storeLink %}/products/{{ cust_no }}{% endblock %}
+{% block storeManagerLink %}/products/0{% endblock %}
+
 {% block header %}
   <h1>
     {% block title %} Customer &#35;{{ customer['cust_no'] }} | View {% endblock %}
