@@ -1,8 +1,12 @@
-{% extends 'base.html' %}
+{% if cust_no=='0' %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 
 {% block header %}
   <h1>{% block title %}Suppliers{% endblock %}</h1>
-  {% if manager %}
+  {% if cust_no=='0' %}
     <a href="{{ url_for('supplier_create') }}" class="header-button call-to-action">+ Add supplier</a>
   {% endif %}
 {% endblock %}
@@ -23,7 +27,7 @@
           <p class="body"> {{ supplier['tin'] }}</p>
         </div>
         <div class="post-links">
-          {% if manager %}
+          {% if cust_no=='0' %}
             <a class="action" href="{{ url_for('supplier_update', tin=supplier['tin']) }}">Edit</a>
           {% endif %}  
         </div>

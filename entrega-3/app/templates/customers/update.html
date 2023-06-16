@@ -1,22 +1,26 @@
-{% extends 'base.html' %}
+{% if not new %}
+  {% if cust_no=='0' %}
+    {% extends 'base.html' %}
+  {% else %}
+    {% extends 'base_cust.html' %}
+  {% endif %}
+{% else %}
+  <!doctype html>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+{% endif %}
 
 {% block header %}
 <h1>{% block title %}
   {% if customer['cust_no'] != "" %}
     Customer &#35;{{ customer['cust_no'] }} | Edit
   {% else %}
-    Create New Customer
+    Create New Customer Account
   {% endif %}
   {% endblock %}</h1>{% endblock %}
 
 {% block content %}
   <form method="post">    
-    <label for="cust_no">Customer number</label>
-    {% if customer['cust_no'] != "" %}
-    <input name="cust_no" id="cust_no" type="text" value="{{ request.form['cust_no'] or customer['cust_no'] }}" disabled>
-    {% else %}
-    <input name="cust_no" id="cust_no" type="text">
-    {% endif %}
     <label for="name">Name</label>
     {% if customer['name']!="" %}
     <input name="name" id="name" type="text" value="{{ request.form['name'] or customer['name'] }}">
@@ -55,7 +59,9 @@
     <input type="submit" value="Save">
   </form>
   <hr>
+  {% if not new %}
   <form action="{{ url_for('customer_delete', cust_no=customer['cust_no']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+  {% endif %}
 {% endblock %}

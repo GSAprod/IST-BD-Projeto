@@ -1,4 +1,8 @@
-{% extends 'base.html' %}
+{% if cust_no=='0' %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 
 {% block header %}
   <h1>{% block title %}Accounts{% endblock %}</h1>

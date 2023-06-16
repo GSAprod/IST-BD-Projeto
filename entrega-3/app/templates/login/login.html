@@ -1,0 +1,47 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+{% block header %}
+<head>
+  <title>Login Page</title>
+</head>
+{% endblock %}
+{% block content %}
+<body>
+  <div class="login">
+    <h1>Welcome to StoreName</h1>
+    </div>
+    {% if cust %}
+      <form class="action" href="{{ url_for('check_cust_login')}}>
+      method="POST">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+      
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+      
+          <input type="submit" value="Login">
+        </form>
+    {% else %}
+      <form class="action" href="{{ url_for('check_man_login')}}>
+        method="POST">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+      
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+      
+          <input type="submit" value="Login">
+        </form>
+    {% endif %}
+</body>
+<div class="login">
+<h4>Haven't signed in? 
+    {% if cust %}
+    <a class="action" href="{{ url_for('customer_create', new=True) }}">Sign in</a>
+    {% else %}
+    <a class="action" href="{{ url_for('manager_signin')}}">Sign in</a>
+    {% endif %}
+</div>
+</h4>
+{% endblock %}

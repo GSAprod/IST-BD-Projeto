@@ -4,6 +4,46 @@ html {
   padding: 1rem;
 }
 
+.login {
+  text-align: center;
+  color: #333;
+  padding: 20px;
+}
+
+form {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #0b65c5;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 body {
   max-width: 960px;
   margin: 0 auto;
@@ -23,6 +63,7 @@ a {
 hr {
   border: none;
   border-top: 1px solid lightgray;
+  border-radius: 4px;
 }
 
 nav {
@@ -61,6 +102,7 @@ header {
 
 header .header-button {
   margin: 1em 0;
+  cursor: pointer;
 }
 
 .content {
@@ -69,6 +111,7 @@ header .header-button {
 
 .content > header {
   border-bottom: 1px solid lightgray;
+  border-radius: 4px;
 }
 
 .content > header h1 {
@@ -81,6 +124,8 @@ header .header-button {
   padding: 1em;
   background: #cae6f6;
   border: 1px solid #007bff;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .post > header {
@@ -158,13 +203,26 @@ header .header-button {
   color: inherit;
 }*/
 
+.login-button {
+  display: block;
+  margin: 0 300px;
+  margin-bottom: 10px;
+  padding: 15px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
 .call-to-action {
   text-decoration: none;
   background-color: #DDDDDD;
   color: #333;
   padding: 2px 6px 2px 6px;
-  border: 1px solid #BBBBBB;
-  border-radius: 0.2em;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 input.danger {

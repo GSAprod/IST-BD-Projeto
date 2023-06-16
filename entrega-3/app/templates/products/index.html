@@ -1,13 +1,20 @@
-{% extends 'base.html' %}
+{% if cust_no=='0' %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 
 {% block header %}
   <h1>{% block title %}Products{% endblock %}</h1>
   {% if not cust_no %}
-    {% if manager %}
+   {% if cust_no=='0' %}
       <a href="{{ url_for('product_create') }}" class="header-button call-to-action">+ Add product</a>
+    {% else %}
+      <a href="{{ url_for('customer_new_order', cust_no=customer['cust_no'])}}" 
+      class="header-button call-to-action">+ New order</a>
     {% endif %}
   {% elif order_no %}
-  <a href="{{ url_for('order_view', order_no=order_no) }}" class="header-button call-to-action">View order</a> 
+  <a href="{{ url_for('order_view', order_no=order_no, cust_no=cust_no) }}" class="header-button call-to-action">View order</a> 
   {% endif %}
 {% endblock %}
 
@@ -26,7 +33,7 @@
           <p class="body">€ {{ product['price'] }}</p>
         </div>
         <div class="post-links">
-          {% if cust_no %}
+          {% if cust_no!='0' %}
             {% if not order_no %}
             <a href="{{ url_for('order_add_product', product_sku=product['sku'], cust_no=cust_no) }}"
             class="header-button call-to-action">+</a>
@@ -34,9 +41,10 @@
             <a href="{{ url_for('order_add_more_product', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}"
             class="header-button call-to-action">+</a>
             {% endif %}
+            <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no, just_view=True) }}">View</a>
           {% else %}
-          <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], just_view=True) }}">View</a>
-          {% if manager %} 
+          <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no, just_view=True) }}">View</a>
+          {% if cust_no=='0' %} 
             <a class="action" href="{{ url_for('product_update', product_sku=product['sku'], error='') }}">Edit</a>
           {% endif %}
           {% endif %}

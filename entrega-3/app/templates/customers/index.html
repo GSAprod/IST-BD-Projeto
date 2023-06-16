@@ -1,5 +1,8 @@
-{% extends 'base.html' %}
-
+{% if not cust_no %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 {% block header %}
   <h1>{% block title %}Customers{% endblock %}</h1>
 {% endblock %}

@@ -41,10 +41,54 @@ dictConfig(
 app = Flask(__name__)
 log = app.logger
 
-
 @app.route("/", methods=("GET",))
-@app.route("/products", methods=("GET",))
-def product_index():
+@app.route("/StoreName", methods=("GET", "POST", ))
+def login_account():
+    return render_template("login/init.html")
+
+@app.route("/customer-login", methods=("GET", "POST", ))
+def customer_login():
+    return render_template("login/login.html", cust=True)
+
+@app.route("/customer-signin", methods=("GET", "POST", ))
+def customer_signin():
+    return render_template("customers/update.html", new=True)
+
+@app.route("/manager-signin", methods=("GET", "POST", ))
+def manager_signin():
+    return render_template("managers/create.html", new=True)
+
+
+@app.route("/manager-login", methods=("GET", "POST", ))
+def manager_login():
+    return render_template("login/login.html")
+ 
+@app.route("/manager-check-login", methods=("GET", "POST", ))
+def check_man_login():
+    username=request.form['username']
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            try:    
+                cur.execute(
+                    """
+                    SELECT cust_no FROM customers WHERE cust_no = %(cust_no)s;
+                    """,
+                    {"cust_no": username}
+                )
+            except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
+                conn.rollback()
+                error = "Employee does not exists."
+                return render_template("login/login.html",error=error)
+    return redirect(url_for("product_index", cust_no=0))
+
+
+@app.route("/customer-login", methods=("GET", "POST", ))
+def check_cust_login():
+
+    return redirect(url_for("product_index", cust_no=cust_no))
+
+@app.route("/products/<cust_no>", methods=("GET",))
+def product_index(cust_no):
     """Show all the accounts, most recent first."""
 
     with pool.connection() as conn:
@@ -65,7 +109,7 @@ def product_index():
     ):
         return jsonify(products)
 
-    return render_template("products/index.html", products=products)
+    return render_template("products/index.html", products=products, cust_no=cust_no)
 
 @app.route("/products/create", methods=("GET", "POST"))
 def product_create():
@@ -110,7 +154,7 @@ def product_create():
                 error = "EAN is required to have 13 digits."
 
         if error is not None:
-            return render_template('products/update.html', product=product, error=error)
+            return render_template("products/update.html", product=product, error=error, cust_no=0)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -134,12 +178,12 @@ def product_create():
                     except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
                         conn.rollback()
                         error = "SKU already exists."
-                        return render_template('products/update.html', product=product, error=error)
+                        return render_template("products/update.html", product=product, error=error, cust_no=0)
                 conn.commit()
-            return redirect(url_for("product_index"))
+            return redirect(url_for("product_index", cust_no=0))
 
-@app.route("/product/<product_sku>/view", methods=("GET", ))
-def product_view(product_sku):
+@app.route("/product/<product_sku>/<cust_no>/view", methods=("GET", ))
+def product_view(product_sku, cust_no):
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
             product = cur.execute(
@@ -152,7 +196,7 @@ def product_view(product_sku):
             ).fetchone()
             log.debug(f"Found {cur.rowcount} rows.")
 
-    return render_template("products/view.html", product=product, just_view=True)
+    return render_template("products/view.html", product=product, just_view=True, cust_no=cust_no)
 
 @app.route("/products/<product_sku>/update", methods=("GET", "POST"))
 def product_update(product_sku):
@@ -194,7 +238,7 @@ def product_update(product_sku):
                 error = "EAN is required to have 13 digits."
 
         if error is not None:
-            return render_template('products/update.html', product=product, error=error)
+            return render_template("products/update.html", product=product, error=error, cust_no=0)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -217,9 +261,9 @@ def product_update(product_sku):
                             {"product_sku": product_sku, "name": name, "price": price, "description": description},
                         )
                 conn.commit()
-            return redirect(url_for("product_index"))
+            return redirect(url_for("product_index", cust_no=0))
 
-    return render_template("products/update.html", product=product, error=None)
+    return render_template("products/update.html", product=product, error=None, cust_no=0)
 
 
 @app.route("/products/<product_sku>/delete", methods=("POST",))
@@ -274,10 +318,10 @@ def product_delete(product_sku):
                 """, {"product_sku": product_sku})
             
         conn.commit()
-    return redirect(url_for("product_index"))
+    return redirect(url_for("product_index", cust_no=0))
 
-@app.route("/suppliers", methods=("GET",))
-def supplier_index():
+@app.route("/suppliers/<cust_no>", methods=("GET",))
+def supplier_index(cust_no):
     """Show all the accounts, most recent first."""
 
     with pool.connection() as conn:
@@ -299,7 +343,7 @@ def supplier_index():
     ):
         return jsonify(suppliers)
 
-    return render_template("suppliers/index.html", suppliers=suppliers)
+    return render_template("suppliers/index.html", suppliers=suppliers, cust_no=cust_no)
 
 @app.route("/suppliers/create", methods=("GET", "POST"))
 def supplier_create():
@@ -323,7 +367,7 @@ def supplier_create():
                     WHERE tin is NULL;
                     """
                 ).fetchall()
-        return render_template("suppliers/update.html", supplier=supplier, products=products)
+        return render_template("suppliers/update.html", supplier=supplier, products=products, cust_no=0)
     
     elif request.method == "POST":
         tin = request.form["tin"]
@@ -348,7 +392,7 @@ def supplier_create():
             error = "Date is required."
 
         if error is not None:
-            return render_template("suppliers/update.html", supplier=supplier, error=error)
+            return render_template("suppliers/update.html", supplier=supplier, error=error, cust_no=0)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -381,9 +425,9 @@ def supplier_create():
                                     WHERE tin is NULL;
                                     """
                                 ).fetchall()
-                        return render_template("suppliers/update.html", supplier=supplier, products=products, error=error)
+                        return render_template("suppliers/update.html", supplier=supplier, products=products, error=error, cust_no=0)
                 conn.commit()
-            return redirect(url_for("supplier_index"))
+            return redirect(url_for("supplier_index", cust_no=0))
 
 @app.route("/suppliers/<tin>/delete", methods=("POST",))
 def supplier_delete(tin):
@@ -407,7 +451,7 @@ def supplier_delete(tin):
                 {"tin": tin},
             )
         conn.commit()
-    return redirect(url_for("supplier_index"))
+    return redirect(url_for("supplier_index", cust_no=0))
 
 @app.route("/suppliers/<tin>/update", methods=("GET", "POST"))
 def supplier_update(tin):
@@ -461,7 +505,7 @@ def supplier_update(tin):
                 WHERE tin is NULL OR tin = %(tin)s;
                 """, {"tin": tin}
             ).fetchall()
-            return render_template('suppliers/update.html', supplier=supplier, products=products, error=error)
+            return render_template("suppliers/update.html", supplier=supplier, products=products, error=error, cust_no=0)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -485,9 +529,9 @@ def supplier_update(tin):
                             {"tin": tin, "address": address, "name": name, "date": date},
                         )
                 conn.commit()
-            return redirect(url_for("supplier_index"))
+            return redirect(url_for("supplier_index", cust_no=0))
 
-    return render_template("suppliers/update.html", supplier=supplier, products=products, error=None)
+    return render_template("suppliers/update.html", supplier=supplier, products=products, error=None, cust_no=0)
 
 @app.route("/customers", methods=("GET",))
 def customer_index():
@@ -512,7 +556,7 @@ def customer_index():
     ):
         return jsonify(customers)
 
-    return render_template("customers/index.html", customers=customers)
+    return render_template("customers/index.html", customers=customers, cust_no=0, manager=True)
 
 @app.route("/customers/create", methods=("GET", "POST"))
 def customer_create():
@@ -527,10 +571,9 @@ def customer_create():
     }
 
     if request.method == "GET":
-        return render_template("customers/update.html", customer=customer, error=None)
+        return render_template("customers/update.html", customer=customer, error=None, new=True, cust_no=0)
     
     elif request.method == "POST":
-        cust_no = request.form["cust_no"]
         name = request.form["name"]
         email = request.form["email"]
         phone = request.form["phone"]
@@ -558,26 +601,33 @@ def customer_create():
         else:
             if len(email)>254:
                 error = "Email cannot have more than 254 characters."
-
+        global cust_no_count
         if error is not None:
-            return render_template("customers/update.html", customer=customer, error=error)
+            return render_template("customers/update.html", customer=customer, error=error, cust_no=0)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
-                    try:
-                        cur.execute(
-                            """
-                            INSERT INTO customer
-                            VALUES (%(cust_no)s, %(name)s, %(email)s, %(phone)s, %(address)s);
-                            """,
-                            {"cust_no": cust_no, "name": name, "email": email, "phone": phone, "address": address},
-                        )
-                    except psycopg.errors.IntegrityError:
-                        conn.rollback()
-                        error = "Customer already exists."
-                        return render_template("customers/update.html", customer=customer, error=error)
+                    cur.execute(
+                        """
+                        SELECT cust_no FROM customer
+                        ORDER BY cust_no DESC;
+                        """,
+                    )
+                    customers = cur.fetchall()
+                    cust_no_count = 0
+                    if customers:
+                        cust_no_count = customers[0][0]
+                    
+                    cur.execute(
+                        """
+                        INSERT INTO customer
+                        VALUES (%(cust_no)s, %(name)s, %(email)s, %(phone)s, %(address)s);
+                        """,
+                        {"cust_no": cust_no_count+1, "name": name, "email": email, "phone": phone, "address": address},
+                    )
+                    
                 conn.commit()
-            return redirect(url_for("customer_index"))
+            return redirect(url_for("product_index", cust_no=cust_no_count+1))
 
 @app.route("/customers/<cust_no>/delete", methods=("POST",))
 def customer_delete(cust_no):
@@ -623,7 +673,7 @@ def customer_delete(cust_no):
                 {"cust_no": cust_no},
             )
         conn.commit()
-    return redirect(url_for("customer_index"))
+    return redirect(url_for("login_account"))
 
 @app.route("/customers/<cust_no>/update", methods=("GET", "POST"))
 def customer_update(cust_no):
@@ -671,7 +721,7 @@ def customer_update(cust_no):
                 error = "Address cannot have more than 255 characters"
 
         if error is not None:
-            return render_template("customers/update.html", customer=customer, error=error)
+            return render_template("customers/update.html", customer=customer, error=error, cust_no=cust_no)
         else:
             with pool.connection() as conn:
                 with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -684,9 +734,9 @@ def customer_update(cust_no):
                         {"cust_no": cust_no, "address": address, "phone": phone, "email": email, "name": name},
                     )
                 conn.commit()
-            return redirect(url_for("customer_index"))
+            return redirect(url_for("customer_view", cust_no=cust_no))
 
-    return render_template("customers/update.html", customer=customer, error=None)
+    return render_template("customers/update.html", customer=customer, error=None, cust_no=cust_no)
 
 @app.route("/customers/<cust_no>/view", methods=("GET", ))
 def customer_view(cust_no):
@@ -718,7 +768,7 @@ def customer_view(cust_no):
             ).fetchall()
             log.debug(f"Found {cur3.rowcount} rows.")
 
-    return render_template("customers/view.html", customer=customer, orders=orders)
+    return render_template("customers/view.html", customer=customer, orders=orders, cust_no=cust_no)
 
 @app.route("/customers/<cust_no>/new_order", methods=("GET","POST",))
 def customer_new_order(cust_no):
@@ -881,8 +931,8 @@ def add_product_qty(sku, cust_no, order_no):
 
     return redirect(url_for("show_products", cust_no=cust_no, order_no=order_no))
 
-@app.route("/orders/<order_no>/view", methods=("GET", ))
-def order_view(order_no):
+@app.route("/orders/<order_no>/<cust_no>/view", methods=("GET", ))
+def order_view(order_no, cust_no):
     """View the details and the items of an order"""
 
     with pool.connection() as conn:
@@ -895,7 +945,6 @@ def order_view(order_no):
                 """, {"order_no": order_no},
             ).fetchone()
             log.debug(f"Found {cur.rowcount} rows.")
-
         with conn.cursor(row_factory=namedtuple_row) as cur2:
             items = cur2.execute(
                 """
@@ -911,7 +960,7 @@ def order_view(order_no):
         for i in range(len(items)):
             total += items[i][4]
 
-    return render_template("orders/view.html", order=order, items=items, total=total)
+    return render_template("orders/view.html", order=order, items=items, total=total, cust_no=cust_no)
 
 @app.route("/orders/<order_no>/delete-item/<product_sku>/", methods=("POST", ))
 def order_delete_item(order_no, product_sku):
@@ -983,7 +1032,7 @@ def pay_order(order_no, cust_no):
         total = 0
         for i in range(len(items)):
             total += items[i][4]
-    return render_template("orders/payment.html", total=total, customer=customer, items=items, order_no=order_no)
+    return render_template("orders/payment.html", total=total, customer=customer, items=items, order_no=order_no, cust_no=cust_no)
 
 @app.route("/orders/<order_no>/<cust_no>/payment", methods=("POST", ))
 def order_paid(cust_no, order_no):
@@ -997,6 +1046,56 @@ def order_paid(cust_no, order_no):
                 {"order_no": order_no, "cust_no": cust_no},
             )
     return redirect(url_for("customer_view", cust_no=cust_no))
+
+@app.route("/managers/create", methods=( "GET","POST",))
+def manager_create():
+    """Add a new manager"""
+    employee = {
+        'ssn': "",
+        'tin': "",
+        'bdate': "",
+        'name': ""
+    }
+
+    if request.method == "GET":
+        return render_template("managers/create.html", manager=employee, error=None, new=True)
+    elif request.method=="POST":
+        ssn = request.form["ssn"]
+        name = request.form["name"]
+        tin = request.form["tin"]
+        bdate = request.form["bdate"]
+
+        error = None
+
+        if not tin:
+            error = "TIN is required."
+        else:
+            if len(tin)>20:
+                error = "Address cannot have more than 255 characters."
+        if not name:
+            error = "Name is required."
+        if ssn and len(ssn)>20:
+            error = "SSN cannot have more than 20 characters."
+        
+        if error is not None:
+            return render_template("managers/creatghjkje.html", error=error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    try:
+                        cur.execute(
+                            """
+                            INSERT INTO employee
+                            VALUES (%(ssn)s, %(tin)s, %(bdate)s, %(name)s);
+                            """,
+                            {"ssn": ssn, "tin": tin, "bdate": bdate, "name": name},
+                        )
+                    except psycopg.errors.IntegrityError:
+                        conn.rollback()
+                        error = "TIN already exists."
+                        return render_template("managers/create.html", error=error)
+                conn.commit()
+            return redirect(url_for("product_index", cust_no=0))
 
 @app.route("/ping", methods=("GET",))
 def ping():

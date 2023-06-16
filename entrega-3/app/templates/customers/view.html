@@ -1,4 +1,8 @@
-{% extends 'base.html' %} 
+{% if manager %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 
 {% block header %}
   <h1>
@@ -52,7 +56,7 @@
             {% endif %}
           </div>
           <div class="post-links">
-            <a href="{{ url_for('order_view', order_no=order['order_no']) }}" class="action">View contents</a>
+            <a href="{{ url_for('order_view', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">View contents</a>
             {% if not order['paid'] %}
               {% if not manager %}
                 <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>

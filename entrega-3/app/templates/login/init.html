@@ -1,0 +1,19 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+{% block header %}
+<head>
+  <title>Login Page</title>
+</head>
+{% endblock %}
+{% block content %}
+<body>
+  <div class="login">
+    <h1>Welcome to StoreName</h1>
+    <h2>Log in as:</h2>
+      <a href="{{ url_for('customer_login') }}" class="header-button login-button"> Customer</a>
+      <a href="{{ url_for('manager_login') }}" class="header-button login-button"> Manager</a>
+
+  </div>
+</body>
+{% endblock %}

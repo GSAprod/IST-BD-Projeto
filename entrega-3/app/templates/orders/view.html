@@ -1,4 +1,8 @@
-{% extends 'base.html' %} 
+{% if cust_no=='0' %}
+  {% extends 'base.html' %}
+{% else %}
+  {% extends 'base_cust.html' %}
+{% endif %}
 
 {% block header %}
   <h1>
@@ -25,7 +29,7 @@
   <div class="order-heading">
     <h1>Items</h1>
     {% if not order['paid'] %}
-      {% if not manager %}  
+      {% if cust_no!='0' %}  
         <a href="{{ url_for('show_products', cust_no=order['cust_no'], order_no=order['order_no'])}}" class="header-button call-to-action">+ Add item</a>
       {% endif %}
     {% endif %}
@@ -34,7 +38,7 @@
   <table>
     <tr>
       {% if not order['paid'] %}
-        {% if not manager %}
+        {% if cust_no!='0' %}
           <th class="delete-col"></th>
         {% endif %}
       {% endif %}
@@ -47,7 +51,7 @@
     {% for item in items %}
     <tr>
       {% if not order['paid'] %}
-        {% if not manager %}
+        {% if cust_no!='0' %}
           <td class="delete-col">
             <form 
               action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku']) }}" 
@@ -73,7 +77,7 @@
   </div>
 
   {% if not order['paid'] %}
-    {% if not manager %}
+    {% if cust_no!='0' %}
       <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
     {% endif %}
   {% endif %}

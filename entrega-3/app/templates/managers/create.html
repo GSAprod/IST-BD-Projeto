@@ -1,0 +1,26 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+{% block header %}
+<h1>{% block title %}
+    Create New Manager Account
+  {% endblock %}</h1>{% endblock %}
+
+{% block content %}
+<form  method="post">   
+    <label for="name">Name</label>
+    <input name="name" id="name" type="text" required> 
+    <label for="ssn">SSN</label>
+    <input name="ssn" id="ssn" type="text" required>
+    <label for="tin">TIN</label>
+    <input name="tin" id="tin" type="text" required>
+    <label for="bdate">Birth Date</label>
+    <input name="bdate" id="bdate" type="date" required>
+
+    {% if error %}
+    <p class="error-messsage"><b>Error:</b> {{ error }}</p>
+    {% endif %}
+    
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}
