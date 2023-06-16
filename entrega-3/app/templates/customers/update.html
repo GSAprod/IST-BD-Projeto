@@ -60,7 +60,10 @@
     {% else %}
     <input name="address" id="address" type="text">
     {% endif %}
-
+    {% if new %}
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+    {% endif %}
     {% if error %}
     <p class="error-messsage"><b>Error:</b> {{ error }}</p>
     {% endif %}
