@@ -72,32 +72,25 @@ def customer_login():
 def customer_signin():
     return render_template("customers/update.html", new=True)
 
-@app.route("/manager-signin", methods=("GET", ))
-def manager_signin():
-    return render_template("managers/create.html", new=True)
-
-
-@app.route("/manager-login", methods=("GET", ))
+@app.route("/manager-login", methods=("GET", "POST"))
 def manager_login():
-    return render_template("login/login.html")
- 
-@app.route("/manager-login", methods=("POST", ))
-def check_man_login():
-    username=request.form['username']
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            try:    
-                cur.execute(
+    if request.method == "POST":
+        username=request.form['username']
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:  
+                is_login_sucessful = cur.execute(
                     """
-                    SELECT ssn FROM employee WHERE ssn = %(ssn)s;
+                    SELECT COUNT(1) FROM employee WHERE ssn = %(ssn)s;
                     """,
                     {"ssn": username}
-                )
-            except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
-                conn.rollback()
-                error = "Employee does not exists."
-                return render_template("login/login.html",error=error)
-    return redirect(url_for("product_index", cust_no=0))
+                ).fetchone()
+                if not is_login_sucessful[0]:
+                    error = "Employee does not exists."
+                    return render_template("login/login.html", error=error)
+                else:
+                    return redirect(url_for("product_index", cust_no=0))
+
+    return render_template("login/login.html")
 
 @app.route("/products/<cust_no>", methods=("GET", ))
 def product_index(cust_no):
@@ -1059,7 +1052,7 @@ def order_paid(cust_no, order_no):
             )
     return redirect(url_for("customer_view", cust_no=cust_no))
 
-@app.route("/managers/create", methods=( "GET","POST",))
+@app.route("/managers/create", methods=("GET", "POST",))
 def manager_create():
     """Add a new manager"""
     employee = {

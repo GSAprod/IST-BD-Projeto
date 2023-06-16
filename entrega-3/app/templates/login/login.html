@@ -29,8 +29,7 @@
           <input type="submit" value="Login">
         </form>
     {% else %}
-      <form class="login-form" action="{{ url_for('check_man_login')}}>
-        method="POST">
+      <form class="login-form" method="POST">
           <label for="username">Username:</label>
           <input type="text" id="username" name="username" required>
       
@@ -40,7 +39,7 @@
           {% if error %}
           <p>{{ error }}</p>
           {% endif %}
-          
+
           <input type="submit" value="Login">
         </form>
     {% endif %}
@@ -48,9 +47,9 @@
 <div class="login">
 <h4>Haven't signed in? 
     {% if cust %}
-    <a class="action" href="{{ url_for('customer_create', new=True) }}">Sign in</a>
+    <a class="action" href="{{ url_for('customer_create') }}">Sign in</a>
     {% else %}
-    <a class="action" href="{{ url_for('manager_signin')}}">Sign in</a>
+    <a class="action" href="{{ url_for('manager_create')}}">Sign in</a>
     {% endif %}
 </div>
 </h4>
