@@ -56,7 +56,11 @@
             {% endif %}
           </div>
           <div class="post-links">
-            <a href="{{ url_for('order_view', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">View contents</a>
+            {% if not manager %}
+              <a href="{{ url_for('order_view', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">View contents</a>
+            {% else %}
+              <a href="{{ url_for('order_view_employee', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">View contents</a>
+            {% endif %}
             {% if not order['paid'] %}
               {% if not manager %}
                 <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=customer['cust_no']) }}" class="action">Proceed to checkout</a>

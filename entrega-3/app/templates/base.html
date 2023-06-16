@@ -4,9 +4,10 @@
 <nav>
   <h1><a href="/">StoreName</a></h1>
   <ul>
-    <li><a href="{{ url_for('product_index', cust_no=cust_no) }}">Products</a></li>
-    <li><a href="{{ url_for('supplier_index', cust_no=cust_no) }}">Suppliers</a></li>
-    <li><a href="{{ url_for('customer_index', manager=True) }}">Customers</a>
+    <li><a href="{{ url_for('product_index', cust_no=0) }}">Products</a></li>
+    <li><a href="{{ url_for('supplier_index', cust_no=0) }}">Suppliers</a></li>
+    <li><a href="{{ url_for('customer_index') }}">Customers</a></li>
+    <li><a href="{{url_for('login_account') }}" class="header-button logout">Log out</a></li>
     </ul>
   </nav>
   <section class="content">

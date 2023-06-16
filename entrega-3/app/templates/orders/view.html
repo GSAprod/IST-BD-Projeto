@@ -1,4 +1,4 @@
-{% if cust_no=='0' %}
+{% if manager %}
   {% extends 'base.html' %}
 {% else %}
   {% extends 'base_cust.html' %}
@@ -19,7 +19,11 @@
       </div>
       <div>
         <b>Issued by:</b>
-        <a href="{{ url_for('customer_view', cust_no=order['cust_no']) }}">
+        {% if manager %}
+          <a href="{{ url_for('customer_view_manager', cust_no=order['cust_no']) }}">
+        {% else %}
+          <a href="{{ url_for('customer_view', cust_no=order['cust_no']) }}">
+        {% endif %}
           {{ order['cust_name'] }}
         </a>
       </div>
@@ -29,7 +33,7 @@
   <div class="order-heading">
     <h1>Items</h1>
     {% if not order['paid'] %}
-      {% if cust_no!='0' %}  
+      {% if not manager %}  
         <a href="{{ url_for('show_products', cust_no=order['cust_no'], order_no=order['order_no'])}}" class="header-button call-to-action">+ Add item</a>
       {% endif %}
     {% endif %}
@@ -38,7 +42,7 @@
   <table>
     <tr>
       {% if not order['paid'] %}
-        {% if cust_no!='0' %}
+        {% if not manager %}
           <th class="delete-col"></th>
         {% endif %}
       {% endif %}
@@ -51,10 +55,10 @@
     {% for item in items %}
     <tr>
       {% if not order['paid'] %}
-        {% if cust_no!='0' %}
+        {% if not manager %}
           <td class="delete-col">
             <form 
-              action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku']) }}" 
+              action="{{ url_for('order_delete_item', order_no=order['order_no'], product_sku=item['sku'], cust_no=cust_no) }}" 
               method="post"
               class="order-delete-item-form"
               >
@@ -77,7 +81,7 @@
   </div>
 
   {% if not order['paid'] %}
-    {% if cust_no!='0' %}
+    {% if not manager %}
       <a href="{{ url_for('pay_order', order_no=order['order_no'], cust_no=order['cust_no']) }}">Proceed to checkout</a> 
     {% endif %}
   {% endif %}

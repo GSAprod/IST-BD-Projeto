@@ -6,8 +6,8 @@
   <ul>
     <li><a href="{{ url_for('product_index', cust_no=cust_no) }}">Products</a></li>
     <li><a href="{{ url_for('supplier_index',cust_no=cust_no) }}">Suppliers</a></li>
-    <li><a href="{{ url_for('customer_view', cust_no=cust_no) }}">My account</a>
-      <a href="{{url_for('login_account') }}" class="header-button call-to-action">Log out</a>
+    <li><a href="{{ url_for('customer_view', cust_no=cust_no) }}">My account</a></li>
+    <li><a href="{{url_for('login_account') }}" class="header-button logout">Log out</a></li>
     </ul>
   </nav>
   <section class="content">

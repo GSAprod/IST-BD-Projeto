@@ -31,11 +31,11 @@
         <div class="post-links">
           {% if cust_no!='0' %}
             {% if not order_no %}
-            <a href="{{ url_for('order_add_product', product_sku=product['sku'], cust_no=cust_no) }}"
-            class="header-button call-to-action">+</a>
+              <a href="{{ url_for('order_add_product', product_sku=product['sku'], cust_no=cust_no) }}"
+              class="header-button call-to-action">+</a>
             {% else %}
-            <a href="{{ url_for('order_add_more_product', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}"
-            class="header-button call-to-action">+</a>
+              <a href="{{ url_for('order_add_more_product', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}"
+              class="header-button call-to-action">+</a>
             {% endif %}
           {% endif %}
         </div>

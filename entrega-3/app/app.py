@@ -187,6 +187,22 @@ def product_create():
                 conn.commit()
             return redirect(url_for("product_index", cust_no=0))
 
+@app.route("/product/<product_sku>/<cust_no>/<order_no>/view", methods=("GET", ))
+def product_view_order(product_sku, cust_no, order_no):
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            product = cur.execute(
+                """
+                SELECT name, sku, ean, price, description
+                FROM product
+                WHERE sku = %(product_sku)s;
+                """, 
+                {"product_sku": product_sku},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+
+    return render_template("products/view.html", product=product, just_view=True, order_no=order_no, cust_no=cust_no)
+
 @app.route("/product/<product_sku>/<cust_no>/view", methods=("GET", ))
 def product_view(product_sku, cust_no):
     with pool.connection() as conn:
@@ -202,6 +218,7 @@ def product_view(product_sku, cust_no):
             log.debug(f"Found {cur.rowcount} rows.")
 
     return render_template("products/view.html", product=product, just_view=True, cust_no=cust_no)
+
 
 @app.route("/products/<product_sku>/update", methods=("GET", "POST"))
 def product_update(product_sku):
@@ -775,6 +792,39 @@ def customer_view(cust_no):
 
     return render_template("customers/view.html", customer=customer, orders=orders, cust_no=cust_no)
 
+@app.route("/customers/<cust_no>/view-only", methods=("GET", ))
+def customer_view_manager(cust_no):
+    """View the account details, as well as the orders issued by the account."""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur3:
+            customer = cur3.execute(
+                """
+                SELECT cust_no, name, email, phone, address
+                FROM customer
+                WHERE cust_no = %(cust_no)s;
+                """,
+                {"cust_no": cust_no},
+            ).fetchone()
+            log.debug(f"Found {cur3.rowcount} rows.")
+        
+        with conn.cursor(row_factory=namedtuple_row) as cur3:
+            orders = cur3.execute(
+                """
+                SELECT order_no, date, SUM(qty) AS num_items, SUM(qty*price) AS total_price,
+                    order_no IN (SELECT order_no FROM pay) AS paid
+                FROM orders JOIN contains USING (order_no) JOIN product USING (sku)
+                WHERE cust_no = %(cust_no)s
+                GROUP BY order_no
+                ORDER BY date DESC, order_no DESC;
+                """,
+                {"cust_no": cust_no},
+            ).fetchall()
+            log.debug(f"Found {cur3.rowcount} rows.")
+
+    return render_template("customers/view.html", customer=customer, orders=orders, cust_no=cust_no, manager=True)
+
+
 @app.route("/customers/<cust_no>/new_order", methods=("GET","POST",))
 def customer_new_order(cust_no):
     """Show all the products available to order."""
@@ -840,7 +890,7 @@ def order_add_product(product_sku, cust_no):
 
     return render_template("products/view.html", product=product, cust_no=cust_no)
 
-@app.route("/orders/<product_sku>/<cust_no>/<order_no>/add_product", methods=("GET", ))
+@app.route("/orders/<product_sku>/<cust_no>/<order_no>/add_more_product", methods=("GET", ))
 def order_add_more_product(product_sku, cust_no, order_no):
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -858,7 +908,7 @@ def order_add_more_product(product_sku, cust_no, order_no):
 
 @app.route("/orders/<sku>/<cust_no>/create_order", methods=("GET","POST", ))
 def create_order(sku, cust_no):
-    qty=1 
+    qty=int(request.form["qty"])
     global order_no_count
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
@@ -936,7 +986,7 @@ def add_product_qty(sku, cust_no, order_no):
 
     return redirect(url_for("show_products", cust_no=cust_no, order_no=order_no))
 
-@app.route("/orders/<order_no>/<cust_no>/view", methods=("GET", ))
+@app.route("/orders/<order_no>/<cust_no>/vihew", methods=("GET", ))
 def order_view(order_no, cust_no):
     """View the details and the items of an order"""
 
@@ -967,8 +1017,40 @@ def order_view(order_no, cust_no):
 
     return render_template("orders/view.html", order=order, items=items, total=total, cust_no=cust_no)
 
-@app.route("/orders/<order_no>/delete-item/<product_sku>/", methods=("POST", ))
-def order_delete_item(order_no, product_sku):
+@app.route("/orders/<order_no>/<cust_no>/view-only", methods=("GET", ))
+def order_view_employee(order_no, cust_no):
+    """View the details and the items of an order"""
+
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            order = cur.execute(
+                """
+                SELECT order_no, cust_no, name AS cust_name, date, order_no IN (SELECT order_no FROM pay) AS paid
+                FROM orders JOIN customer USING (cust_no)
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no},
+            ).fetchone()
+            log.debug(f"Found {cur.rowcount} rows.")
+        with conn.cursor(row_factory=namedtuple_row) as cur2:
+            items = cur2.execute(
+                """
+                SELECT sku, name, price, qty, price * qty AS qty_price
+                FROM product JOIN contains USING (sku)
+                WHERE order_no = %(order_no)s;
+                """, {"order_no": order_no},
+            ).fetchall()
+            log.debug(f"Found {cur2.rowcount} rows.")
+        
+        log.debug(f"Items: {items[0][4]}")
+        total = 0
+        for i in range(len(items)):
+            total += items[i][4]
+
+    return render_template("orders/view.html", order=order, items=items, total=total, cust_no=cust_no, manager=True)
+
+
+@app.route("/orders/<order_no>/delete-item/<product_sku>/<cust_no>", methods=("POST", ))
+def order_delete_item(order_no, product_sku, cust_no):
     """Remove a product from an order"""
 
     with pool.connection() as conn:
@@ -1007,9 +1089,9 @@ def order_delete_item(order_no, product_sku):
                 )
         conn.commit()
         if order_has_products[0] == 0:
-            return redirect(url_for("customer_index"))
+            return redirect(url_for("customer_view", cust_no=cust_no))
 
-    return redirect(url_for("order_view", order_no=order_no))
+    return redirect(url_for("order_view", order_no=order_no, cust_no=cust_no))
     
 @app.route("/orders/<order_no>/<cust_no>/payment", methods=("GET", ))
 def pay_order(order_no, cust_no):
@@ -1081,25 +1163,30 @@ def manager_create():
             error = "Name is required."
         if ssn and len(ssn)>20:
             error = "SSN cannot have more than 20 characters."
-        
+
         if error is not None:
             return render_template("managers/creatghjkje.html", error=error)
         else:
             with pool.connection() as conn:
-                with conn.cursor(row_factory=namedtuple_row) as cur:
-                    try:
-                        cur.execute(
-                            """
-                            INSERT INTO employee
-                            VALUES (%(ssn)s, %(tin)s, %(bdate)s, %(name)s);
-                            """,
-                            {"ssn": ssn, "tin": tin, "bdate": bdate, "name": name},
-                        )
-                    except psycopg.errors.IntegrityError:
-                        conn.rollback()
-                        error = "TIN already exists."
-                        return render_template("managers/create.html", error=error)
-                conn.commit()
+                try:
+                    with conn.cursor(row_factory=namedtuple_row) as cur:
+                        try:
+                            cur.execute(
+                                """
+                                INSERT INTO employee
+                                VALUES (%(ssn)s, %(tin)s, %(bdate)s, %(name)s);
+                                """,
+                                {"ssn": ssn, "tin": tin, "bdate": bdate, "name": name},
+                            )
+                        except psycopg.errors.IntegrityError:
+                            conn.rollback()
+                            error = "TIN already exists."
+                            return render_template("managers/create.html", error=error)
+                    conn.commit()
+                except psycopg.errors.RaiseException:
+                    error = "Employee must be at least 18 years old."
+                    return render_template("managers/create.html", error=error)
+
             return redirect(url_for("product_index", cust_no=0))
 
 @app.route("/ping", methods=("GET",))

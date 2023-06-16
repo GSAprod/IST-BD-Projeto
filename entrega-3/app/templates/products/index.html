@@ -35,18 +35,19 @@
         <div class="post-links">
           {% if cust_no!='0' %}
             {% if not order_no %}
-            <a href="{{ url_for('order_add_product', product_sku=product['sku'], cust_no=cust_no) }}"
-            class="header-button call-to-action">+</a>
+              <a href="{{ url_for('order_add_product', product_sku=product['sku'], cust_no=cust_no) }}"
+              class="header-button call-to-action">+</a>
+              <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no) }}">View</a>
             {% else %}
-            <a href="{{ url_for('order_add_more_product', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}"
-            class="header-button call-to-action">+</a>
+              <a href="{{ url_for('order_add_more_product', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}"
+              class="header-button call-to-action">+</a>
+              <a class="action" href="{{ url_for('product_view_order', product_sku=product['sku'], cust_no=cust_no, order_no=order_no) }}">View</a>
             {% endif %}
-            <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no, just_view=True) }}">View</a>
           {% else %}
-          <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no, just_view=True) }}">View</a>
-          {% if cust_no=='0' %} 
-            <a class="action" href="{{ url_for('product_update', product_sku=product['sku'], error='') }}">Edit</a>
-          {% endif %}
+            <a class="action" href="{{ url_for('product_view', product_sku=product['sku'], cust_no=cust_no, just_view=True) }}">View</a>
+            {% if cust_no=='0' %} 
+              <a class="action" href="{{ url_for('product_update', product_sku=product['sku'], error='') }}">Edit</a>
+            {% endif %}
           {% endif %}
         </div>
       </header>
