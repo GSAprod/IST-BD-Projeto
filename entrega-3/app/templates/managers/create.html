@@ -16,7 +16,8 @@
     <input name="tin" id="tin" type="text" required>
     <label for="bdate">Birth Date</label>
     <input name="bdate" id="bdate" type="date" required>
-
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
     {% if error %}
     <p class="error-messsage"><b>Error:</b> {{ error }}</p>
     {% endif %}

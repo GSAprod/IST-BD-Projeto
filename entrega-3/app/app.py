@@ -94,14 +94,15 @@ def manager_login():
 
 @app.route("/products/<cust_no>", methods=("GET", ))
 def product_index(cust_no):
-    """Show all the accounts, most recent first."""
+    """Show all the accounts, in alphabetical order."""
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product;
+                FROM product
+                ORDER BY name ASC;
                 """,
                 {},
             ).fetchall()
@@ -386,7 +387,8 @@ def supplier_create():
                     """
                     SELECT product.name AS name, sku
                     FROM product LEFT JOIN supplier USING (sku)
-                    WHERE tin is NULL;
+                    WHERE tin is NULL
+                    ORDER BY name ASC;
                     """
                 ).fetchall()
         return render_template("suppliers/update.html", supplier=supplier, products=products, cust_no=0)
@@ -444,7 +446,8 @@ def supplier_create():
                                     """
                                     SELECT product.name AS name, sku
                                     FROM product LEFT JOIN supplier USING (sku)
-                                    WHERE tin is NULL;
+                                    WHERE tin is NULL
+                                    ORDER BY name ASC;
                                     """
                                 ).fetchall()
                         return render_template("suppliers/update.html", supplier=supplier, products=products, error=error, cust_no=0)
@@ -494,7 +497,8 @@ def supplier_update(tin):
                     """
                     SELECT product.name AS name, sku
                     FROM product LEFT JOIN supplier USING (sku)
-                    WHERE tin is NULL OR tin = %(tin)s;
+                    WHERE tin is NULL OR tin = %(tin)s
+                    ORDER BY name ASC;
                     """, {"tin": tin}
                 ).fetchall()
 
@@ -524,7 +528,8 @@ def supplier_update(tin):
                 """
                 SELECT product.name AS name, sku
                 FROM product LEFT JOIN supplier USING (sku)
-                WHERE tin is NULL OR tin = %(tin)s;
+                WHERE tin is NULL OR tin = %(tin)s
+                ORDER BY name ASC;
                 """, {"tin": tin}
             ).fetchall()
             return render_template("suppliers/update.html", supplier=supplier, products=products, error=error, cust_no=0)
@@ -834,7 +839,8 @@ def customer_new_order(cust_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product;
+                FROM product
+                ORDER BY name ASC;
                 """,
                 {},
             ).fetchall()
@@ -858,7 +864,8 @@ def show_products(cust_no, order_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product;
+                FROM product
+                ORDER BY name ASC;
                 """,
                 {},
             ).fetchall()
@@ -939,7 +946,8 @@ def create_order(sku, cust_no):
             products = cur.execute(
                 """
                 SELECT sku, name, price, ean
-                FROM product;
+                FROM product
+                ORDER BY name ASC;
                 """,
                 {},
             ).fetchall()
