@@ -71,9 +71,9 @@ def check_man_login():
             try:    
                 cur.execute(
                     """
-                    SELECT cust_no FROM customers WHERE cust_no = %(cust_no)s;
+                    SELECT ssn FROM employee WHERE ssn = %(ssn)s;
                     """,
-                    {"cust_no": username}
+                    {"ssn": username}
                 )
             except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
                 conn.rollback()
@@ -84,8 +84,21 @@ def check_man_login():
 
 @app.route("/customer-login", methods=("GET", "POST", ))
 def check_cust_login():
-
-    return redirect(url_for("product_index", cust_no=cust_no))
+    username=request.form['username']
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            try:    
+                cur.execute(
+                    """
+                    SELECT cust_no FROM customers WHERE cust_no = %(cust_no)s;
+                    """,
+                    {"cust_no": username}
+                )
+            except psycopg.errors.IntegrityError:   # Raised when sku already exists on the database
+                conn.rollback()
+                error = "Customer does not exists."
+                return redirect("customer_login")
+    return redirect(url_for("product_index", cust_no=username))
 
 @app.route("/products/<cust_no>", methods=("GET",))
 def product_index(cust_no):
