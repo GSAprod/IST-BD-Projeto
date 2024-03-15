@@ -76,3 +76,5 @@ Corra o seguinte comando dentro da pasta `entrega-3`:
 ```
 $ docker compose up
 ```
+
+A aplicação web irá estar em execução, podendo aceder à mesma no endereço [localhost:5001](127.0.0.1:5001).
